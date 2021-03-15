@@ -7,21 +7,51 @@ import CatItem from "./cat-item";
 import { WRAPPER, calculatePrice } from "../../utils";
 import Modal from "../ui/modal";
 import { ethers } from "ethers";
+import Loader from "../ui/loader";
 
-enum Filters {
-  IN_MY_WALLET,
-  ON_THE_MOON,
-}
-
-enum WrappedFilters {
+enum SortTypes {
   ALL,
-  WRAPPED,
+  HIGH_OFFER,
+  CHEAPEST_OFFER,
+  OFFER_DATE,
 }
 
-const TAKE_COUNTER = 120;
+const priceField = (cat: Cat) =>
+  cat.activeAdoptionOffer && cat.activeAdoptionOffer.price;
+
+const compareSortingFn = {
+  [SortTypes.ALL]: () => {
+    return 0;
+  },
+  [SortTypes.HIGH_OFFER]: (catA: Cat, catB: Cat) => {
+    if (
+      catA.activeAdoptionOffer &&
+      catA.activeAdoptionOffer.toAddress.toLowerCase() !== WRAPPER
+    ) {
+      return -1;
+    }
+    if (
+      catB.activeAdoptionOffer &&
+      catB.activeAdoptionOffer.toAddress.toLowerCase() !== WRAPPER
+    ) {
+      return -1;
+    }
+    return 0;
+  },
+  [SortTypes.CHEAPEST_OFFER]: (catA: Cat, catB: Cat) => {
+    return 0;
+  },
+  [SortTypes.OFFER_DATE]: (catA: Cat, catB: Cat) => {
+    return 0;
+  },
+};
+
+const TAKE_COUNTER = 140;
 
 export const AllCats: React.FC = () => {
-  const { fetchAllMoonCats, catInfo } = useContext(GraphContext);
+  const { fetchAllMoonCats, catInfo, isLoadingCatsData } = useContext(
+    GraphContext
+  );
   const { acceptOffer } = useContext(MooncatRescueContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentCat, setCurrentCat] = useState<Cat>();
@@ -34,10 +64,17 @@ export const AllCats: React.FC = () => {
   );
   const [cats, setCats] = useState<Cat[]>([]);
   const [skipCount, setSkipCount] = useState<number>(0);
-  const [activeFilter, setActiveFilter] = useState<Filters>(
-    Filters.IN_MY_WALLET
+  const [currentSort, setCurrentSort] = useState<SortTypes>(SortTypes.ALL);
+
+  const handleSort = useCallback(
+    (sortType: SortTypes) => {
+      const compareFn = compareSortingFn[sortType];
+      const catsSorted = cats.slice(0).sort(compareFn);
+      setCats(catsSorted);
+      setCurrentSort(sortType);
+    },
+    [cats]
   );
-  const [show, setShow] = useState<WrappedFilters>(WrappedFilters.ALL);
 
   const handleModalOpen = useCallback((cat: Cat) => {
     setOpenBidModal(true);
@@ -70,20 +107,6 @@ export const AllCats: React.FC = () => {
     setIsCopiedSuccessfully(true);
     window.setTimeout(() => setIsCopiedSuccessfully(false), 3000);
   }, []);
-
-  const onShow = useCallback(() => {
-    setShow(
-      show === WrappedFilters.ALL ? WrappedFilters.WRAPPED : WrappedFilters.ALL
-    );
-  }, [setShow, show]);
-
-  const onSwitch = useCallback(() => {
-    setActiveFilter(
-      activeFilter === Filters.IN_MY_WALLET
-        ? Filters.ON_THE_MOON
-        : Filters.IN_MY_WALLET
-    );
-  }, [activeFilter, setActiveFilter]);
 
   const handleOnBidPriceChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,126 +166,85 @@ export const AllCats: React.FC = () => {
     /* eslint-disable-next-line */
   }, []);
 
-  const showUnwrapped = ({ activeAdoptionOffer }: Cat) =>
-    activeAdoptionOffer?.toAddress.toLowerCase() !== WRAPPER;
-  const showAll = ({ activeAdoptionOffer }: Cat) => true;
-  const inMyWallet = cats
-    .filter(({ inWallet }) => inWallet)
-    .filter((item) =>
-      show === WrappedFilters.ALL ? showUnwrapped(item) : showAll(item)
+  if (!isLoadingCatsData) {
+    return (
+      <div className="content center">
+        <Loader />
+      </div>
     );
-  const onTheMoon = cats.filter(({ inWallet }) => !inWallet);
-
-  const toggleValue = activeFilter === Filters.IN_MY_WALLET;
-  const toggleShowValue = show === WrappedFilters.ALL;
-
-  const title =
-    activeFilter === Filters.IN_MY_WALLET
-      ? "Rescued (have been transferred)"
-      : "Rescued (not transferred)";
-
-  const showTitle = show === WrappedFilters.ALL ? "Original" : "Wrapped";
+  }
 
   return (
     <div className="content">
-      <div className="content__row content__navigation">
-        <div className="switch">
-          <div className="switch__control" onClick={onShow}>
-            <div
-              className={`toggle ${!toggleShowValue ? "toggle__active" : ""}`}
-            >
-              <div className="toggle__pin"></div>
-            </div>
-          </div>
-          <div style={{ width: "16px", position: "relative" }}></div>
-          <div className="switch__title">{showTitle}</div>
-        </div>
-        <div className="switch">
-          <div className="switch__title">{title}</div>
-          <div className="switch__control" onClick={onSwitch}>
-            <div className={`toggle ${!toggleValue ? "toggle__active" : ""}`}>
-              <div className="toggle__pin"></div>
-            </div>
-          </div>
+      <div className="sort">
+        <div className="sort__title">Sort by:</div>
+        <div className="sort__control">
+          <button
+            className={`nft__button active-${currentSort === SortTypes.ALL}`}
+            onClick={() => handleSort(SortTypes.ALL)}
+          >
+            Number
+          </button>
+          <button
+            className={`nft__button active-${
+              currentSort === SortTypes.HIGH_OFFER
+            }`}
+            onClick={() => handleSort(SortTypes.HIGH_OFFER)}
+          >
+            High Offer
+          </button>
+          <button
+            className={`nft__button active-${
+              currentSort === SortTypes.CHEAPEST_OFFER
+            }`}
+            onClick={() => handleSort(SortTypes.CHEAPEST_OFFER)}
+          >
+            Cheapest Offer
+          </button>
+          <button
+            className={`nft__button active-${
+              currentSort === SortTypes.OFFER_DATE
+            }`}
+            onClick={() => handleSort(SortTypes.OFFER_DATE)}
+          >
+            Offer Date
+          </button>
         </div>
       </div>
-      {activeFilter === Filters.IN_MY_WALLET && inMyWallet.length !== 0 && (
-        <>
-          <div className="content__row content__items">
-            {inMyWallet.map((cat) => (
-              <CatItem
-                key={cat.id}
-                cat={cat}
-                catInfo={catInfo && catInfo[cat.id]}
-                hasRescuerIdx={true}
-                onClick={onCopyToClipboard}
+      <div className="content__row content__items">
+        {cats.map((cat) => (
+          <CatItem
+            key={cat.id}
+            cat={cat}
+            catInfo={catInfo && catInfo[cat.id]}
+            hasRescuerIdx={true}
+            onClick={onCopyToClipboard}
+          >
+            <div className="nft__control">
+              <button
+                className="nft__button"
+                onClick={() => handleModalOpen(cat)}
               >
-                <div className="nft__control">
-                  <button
-                    className="nft__button"
-                    onClick={() => handleModalOpen(cat)}
-                  >
-                    Bid
-                  </button>
-                  {cat.activeAdoptionOffer && (
-                    <button
-                      className="nft__button"
-                      onClick={() => handleBuyModalOpen(cat)}
-                    >
-                      Buy now
-                    </button>
-                  )}
-                </div>
-              </CatItem>
-            ))}
-          </div>
-          {!isLoading && (
-            <div className="load-more">
-              <button className="nft__button" onClick={loadMore}>
-                Load more
+                Bid
               </button>
+              {cat.activeAdoptionOffer && (
+                <button
+                  className="nft__button"
+                  onClick={() => handleBuyModalOpen(cat)}
+                >
+                  Buy now
+                </button>
+              )}
             </div>
-          )}
-        </>
-      )}
-      {activeFilter === Filters.ON_THE_MOON && onTheMoon.length !== 0 && (
-        <>
-          <div className="content__row content__items">
-            {onTheMoon.map((cat) => (
-              <CatItem
-                key={cat.id}
-                cat={cat}
-                catInfo={catInfo && catInfo[cat.id]}
-                hasRescuerIdx={true}
-                onClick={onCopyToClipboard}
-              >
-                <div className="nft__control">
-                  <button
-                    className="nft__button"
-                    onClick={() => handleModalOpen(cat)}
-                  >
-                    Bid
-                  </button>
-                  {cat.activeAdoptionOffer && (
-                    <button
-                      className="nft__button"
-                      onClick={() => handleBuyModalOpen(cat)}
-                    >
-                      Buy now
-                    </button>
-                  )}
-                </div>
-              </CatItem>
-            ))}
-          </div>
-          {!isLoading && (
-            <div className="load-more">
-              <button className="nft__button" onClick={loadMore}>
-                Load more
-              </button>
-            </div>
-          )}
-        </>
+          </CatItem>
+        ))}
+      </div>
+      {!isLoading && (
+        <div className="load-more">
+          <button className="nft__button" onClick={loadMore}>
+            Load more
+          </button>
+        </div>
       )}
       {isCopiedSuccessfully && <CatNotifer />}
       <Modal open={isOpenBidModal} handleClose={handleModalClose}>

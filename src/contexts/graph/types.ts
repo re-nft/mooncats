@@ -28,6 +28,7 @@ export type Cat = {
 };
 
 export type CatInfo = {
+  rescueOrder: number;
   catId: string;
   color: string;
   palette: string;

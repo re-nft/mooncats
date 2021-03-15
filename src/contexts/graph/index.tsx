@@ -14,6 +14,7 @@ type GraphContextType = {
   usersMoonCats: Cat[];
   allMoonCats: Cat[];
   catInfo: Record<string, CatInfo>;
+  isLoadingCatsData: boolean;
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
 };
@@ -38,6 +39,7 @@ const DefaultGraphContext: GraphContextType = {
   fetchAllAdoptionBids: () => {
     return [];
   },
+  isLoadingCatsData: false,
 };
 
 const GraphContext = createContext<GraphContextType>(DefaultGraphContext);
@@ -47,6 +49,7 @@ export const GraphProvider: React.FC = ({ children }) => {
   const [usersMoonCats, setUsersMoonCats] = useState<Cat[]>([]);
   const [allMoonCats, _] = useState<Cat[]>([]);
   const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>({});
+  const [isLoadingCatsData, setIsLoadingCatsData] = useState<boolean>(false);
 
   const fetchMyMoonCats = async () => {
     if (!currentAddress) return;
@@ -77,6 +80,7 @@ export const GraphProvider: React.FC = ({ children }) => {
       `Pulled All Moon Cat Nfts`,
       async () => await request(subgraphURI, query)
     );
+    setIsLoadingCatsData(true);
     return response?.cats ?? [];
   };
 
@@ -111,7 +115,7 @@ export const GraphProvider: React.FC = ({ children }) => {
     fetchRarityData();
     /* eslint-disable-next-line */
   }, []);
-
+  console.log("isLoadingCatsData ", isLoadingCatsData);
   return (
     <GraphContext.Provider
       value={{
@@ -120,6 +124,7 @@ export const GraphProvider: React.FC = ({ children }) => {
         catInfo,
         fetchAllMoonCats,
         fetchCatById,
+        isLoadingCatsData,
       }}
     >
       {children}

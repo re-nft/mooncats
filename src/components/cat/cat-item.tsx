@@ -54,7 +54,12 @@ const CatItem: React.FC<{
         <div className="nft__adoption" onClick={handleModalOpen}>
           {/* TODO: note nft__adoption_offered class on wrapper */}
           {activeAdoptionOffer?.toAddress.toLowerCase() == WRAPPER && (
-            <div className="nft__adoption_offered">W</div>
+            <div
+              className="nft__adoption_offered"
+              style={{ background: "#f00" }}
+            >
+              W
+            </div>
           )}
           {/* {wasWrapped && <div className="nft__was_wrapped">W</div>} */}
           {activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER &&
