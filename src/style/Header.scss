@@ -1,0 +1,120 @@
+.header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  &__user {
+    background: #fdfff9;
+    color: #9c65cd;
+    border: 4px solid #000;
+    text-align: center;
+    font-size: 18px;
+    padding: 8px 18px;
+    line-height: 1;
+    box-shadow: 6px 6px 0 #000;
+  }
+
+  &__logo {
+    background-image: url(./img/logo.jpg);
+    background-size: auto 90px;
+    background-repeat: no-repeat;
+    height: 90px;
+    width: 290px;
+    flex-grow: 1;
+  }
+}
+
+.Header {
+  background: #663399;
+  color: white;
+  border-bottom: 3px solid white;
+  box-shadow: 0 16px 0 black;
+  transform: rotateZ(8deg) skew(-2deg, -10deg) translateY(-10%);
+  margin: 50px;
+}
+
+.Header__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.Header__title {
+  // flex: 1;
+  padding: 20px 0;
+  font-family: "times new roman", times, serif;
+  font-style: italic;
+  margin-right: auto;
+
+  div {
+    font-size: 6em;
+    font-weight: bold;
+    position: relative;
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 2px;
+
+    &:after,
+    &:before {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      color: white;
+      background: #663399;
+      overflow: hidden;
+      clip: rect(0, 900px, 0, 0);
+      display: block;
+      padding: 2px;
+    }
+
+    &:after {
+      left: 3px;
+      text-shadow: -2px 0 red;
+      animation: noise-anim 2s infinite linear alternate-reverse;
+    }
+
+    &:before {
+      content: attr(data-text);
+      left: -3px;
+      text-shadow: 2px 0 blue;
+      animation: noise-anim-2 3s infinite linear alternate-reverse;
+    }
+  }
+}
+
+.Header__summary {
+  text-decoration: none;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.Header__summary__line {
+  font-size: 0.8em;
+}
+
+@keyframes noise-anim {
+  $steps: 20;
+
+  @for $i from 0 through $steps {
+    #{percentage($i * (1 / $steps))} {
+      clip: rect(random(100) + px, 9999px, random(100) + px, 0);
+    }
+  }
+}
+
+@keyframes noise-anim-2 {
+  $steps: 20;
+
+  @for $i from 0 through $steps {
+    #{percentage($i * (1/$steps))} {
+      clip: rect(random(100) + px, 9999px, random(100) + px, 0);
+    }
+  }
+}
