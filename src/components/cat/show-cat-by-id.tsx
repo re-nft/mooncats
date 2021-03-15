@@ -1,15 +1,13 @@
-import React, { useState, useCallback, useContext, useEffect } from "react";
-import GraphContext from "../../../contexts/graph/index";
-import { Cat } from "../../../contexts/graph/types";
-import { WRAPPER, calculatePrice, drawCat } from "./utils";
-import { fetchRarityData, CatInfo } from "./cat-data";
+import React, { useState, useCallback, useContext } from "react";
+import GraphContext from "../../contexts/graph/index";
+import { Cat, CatInfo } from "../../contexts/graph/types";
+import { WRAPPER, calculatePrice, drawCat } from "../../utils";
 import moment from "moment";
 import { ethers } from "ethers";
 
 export const ShowCatById: React.FC = () => {
-  const { fetchCatById } = useContext(GraphContext);
+  const { fetchCatById, catInfo } = useContext(GraphContext);
   const [catId, setCatId] = useState<string>("");
-  const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>();
   const [catImg, setCatImg] = useState<string>();
   const [isValid, setIsValid] = useState<boolean>(true);
   const [cat, setCat] = useState<Cat>();
@@ -36,11 +34,6 @@ export const ShowCatById: React.FC = () => {
     // @ts-ignore
     setCat({});
   }, [setCat, catId, fetchCatById]);
-
-  useEffect(() => {
-    fetchRarityData().then((data) => setCatInfo(data));
-    /* eslint-disable-next-line */
-  }, []);
 
   const info: CatInfo | undefined = catInfo && catInfo[catId];
   return (

@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useContext, useEffect } from "react";
-import GraphContext from "../../../contexts/graph/index";
-import { Cat } from "../../../contexts/graph/types";
+import GraphContext from "../../contexts/graph/index";
+import { Cat, CatInfo } from "../../contexts/graph/types";
 import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
-import { WRAPPER } from "./utils";
-import { fetchRarityData, CatInfo } from "./cat-data";
-import Modal from "../../catalogue/modals/modal";
+import { WRAPPER } from "../../utils";
+import Modal from "../ui/modal";
 
 enum Filters {
   IN_MY_WALLET,
@@ -20,7 +19,7 @@ enum WrappedFilters {
 const TAKE_COUNTER = 120;
 
 export const AllCats: React.FC = () => {
-  const { fetchAllMoonCats } = useContext(GraphContext);
+  const { fetchAllMoonCats, catInfo } = useContext(GraphContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentCat, setCurrentCat] = useState<Cat>();
   const [currentBidPrice, setCurrentBidPrice] = useState<string>();
@@ -29,7 +28,6 @@ export const AllCats: React.FC = () => {
     false
   );
   const [cats, setCats] = useState<Cat[]>([]);
-  const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>();
   const [skipCount, setSkipCount] = useState<number>(0);
   const [activeFilter, setActiveFilter] = useState<Filters>(
     Filters.IN_MY_WALLET
@@ -112,7 +110,6 @@ export const AllCats: React.FC = () => {
   }, [skipCount, fetchAllMoonCats]);
 
   useEffect(() => {
-    fetchRarityData().then((data) => setCatInfo(data));
     fetchAllMoonCats(TAKE_COUNTER, 0).then((items: Cat[] | undefined) => {
       if (items) {
         setCats(items);

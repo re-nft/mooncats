@@ -13,9 +13,7 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   return (
     <Dialog open={open} onClose={handleClose}>
-      <div className="modal-dialog">
-        {children}
-      </div>
+      <div className="modal-dialog">{children}</div>
     </Dialog>
   );
 };

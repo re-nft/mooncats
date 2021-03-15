@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useEffect } from "react";
+import React from "react";
 
 const CatNotifer: React.FC = () => {
   return <div className="copy-notifer">Copied Cat Id</div>;

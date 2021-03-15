@@ -5,7 +5,7 @@ import { CurrentAddressContext } from "../../hardhat/SymfoniContext";
 import { timeItAsync } from "../../utils";
 
 import { queryMyMoonCats, queryAllCats, queryCatById } from "./queries";
-import { Cat } from "./types";
+import { Cat, CatInfo } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
   "https://api.thegraph.com/subgraphs/name/rentft/moon-cat-rescue";
@@ -13,6 +13,7 @@ const ENDPOINT_MOONCAT_PROD =
 type GraphContextType = {
   usersMoonCats: Cat[];
   allMoonCats: Cat[];
+  catInfo: Record<string, CatInfo>;
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
 };
@@ -20,6 +21,7 @@ type GraphContextType = {
 const DefaultGraphContext: GraphContextType = {
   usersMoonCats: [],
   allMoonCats: [],
+  catInfo: {},
   // @ts-ignore
   fetchAllMoonCats: () => {
     return [];
@@ -44,6 +46,7 @@ export const GraphProvider: React.FC = ({ children }) => {
   const [currentAddress] = useContext(CurrentAddressContext);
   const [usersMoonCats, setUsersMoonCats] = useState<Cat[]>([]);
   const [allMoonCats, _] = useState<Cat[]>([]);
+  const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>({});
 
   const fetchMyMoonCats = async () => {
     if (!currentAddress) return;
@@ -90,8 +93,22 @@ export const GraphProvider: React.FC = ({ children }) => {
     return response?.cats[0];
   };
 
+  const fetchRarityData = async () => {
+    const response = await fetch("./data.json");
+    console.log("Pulled Rarity Cat");
+    const data = await response.text();
+    const resolvedData = JSON.parse(data).reduce(
+      (memo: Record<string, CatInfo>, item: CatInfo) => {
+        memo[item.catId] = item;
+        return memo;
+      }
+    );
+    setCatInfo(resolvedData);
+  };
+
   useEffect(() => {
     fetchMyMoonCats();
+    fetchRarityData();
     /* eslint-disable-next-line */
   }, []);
 
@@ -100,6 +117,7 @@ export const GraphProvider: React.FC = ({ children }) => {
       value={{
         usersMoonCats,
         allMoonCats,
+        catInfo,
         fetchAllMoonCats,
         fetchCatById,
       }}
