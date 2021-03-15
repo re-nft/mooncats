@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
-
-import Layout from "./components/layout/layout";
-import MyCats from "./components/pages/cat/my-cats";
-import AllCats from "./components/pages/cat/all-cats";
-import ShowCatById from "./components/pages/cat/show-cat-by-id";
-import { TransactionNotifier } from "./components/transaction-notifier";
+import Layout from "./layout";
+import MyCats from "../cat/my-cats";
+import AllCats from "../cat/all-cats";
+import ShowCatById from "../cat/show-cat-by-id";
+import { TransactionNotifier } from "../ui/transaction-notifier";
 
 enum Tabs {
   RENT,

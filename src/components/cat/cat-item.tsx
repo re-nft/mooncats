@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { ethers } from "ethers";
-import { Cat } from "../../../contexts/graph/types";
-import { WRAPPER, hexToAscii, calculatePrice, drawCat } from "./utils";
-import Modal from "../../catalogue/modals/modal";
-import { CatInfo } from "../cat/cat-data";
+import { Cat, CatInfo } from "../../contexts/graph/types";
+import { WRAPPER, hexToAscii, calculatePrice, drawCat } from "../../utils";
+import Modal from "../ui/modal";
 import moment from "moment";
 
 const CatItem: React.FC<{

@@ -26,3 +26,12 @@ export type Cat = {
     timestamp: string;
   }[];
 };
+
+export type CatInfo = {
+  catId: string;
+  color: string;
+  palette: string;
+  pattern: number;
+  statisticalRank: string;
+  traitRarityRank: string;
+};

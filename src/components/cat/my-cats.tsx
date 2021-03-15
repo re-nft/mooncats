@@ -1,20 +1,18 @@
 import React, { useState, useCallback, useContext, useEffect } from "react";
-import GraphContext from "../../../contexts/graph/index";
-import MooncatRescueContext from "../../../contexts/mooncats/index";
-import { Cat } from "../../../contexts/graph/types";
+import GraphContext from "../../contexts/graph/index";
+import MooncatRescueContext from "../../contexts/mooncats/index";
+import { Cat } from "../../contexts/graph/types";
 import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
-import { fetchRarityData, CatInfo } from "./cat-data";
-import Modal from "../../catalogue/modals/modal";
+import Modal from "../ui/modal";
 import { ethers } from "ethers";
 
 export const MyCats: React.FC = () => {
-  const { usersMoonCats } = useContext(GraphContext);
+  const { usersMoonCats, catInfo } = useContext(GraphContext);
   const [currentCat, setCurrentCat] = useState<Cat>();
   const [_salePrice, _setSalePrice] = useState<string>();
   const [isOpenSaleModal, setOpenSaleModal] = useState<boolean>(false);
   const [cats, setCats] = useState<Cat[]>([]);
-  const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>();
   const [isCatLoaded, setIsCatLoaded] = useState<boolean>(false);
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
@@ -77,11 +75,6 @@ export const MyCats: React.FC = () => {
   useEffect(() => {
     setCats(usersMoonCats);
   }, [usersMoonCats]);
-
-  useEffect(() => {
-    fetchRarityData().then((data) => setCatInfo(data));
-    /* eslint-disable-next-line */
-  }, []);
 
   const inMyWallet = cats.filter(({ inWallet }) => inWallet);
   const onTheMoon = cats.filter(({ inWallet }) => !inWallet);

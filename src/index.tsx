@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import App from "./App";
+import App from "./components/layout/app-layout";
 import { GraphProvider } from "./contexts/graph/index";
 import { MooncatsProvider } from "./contexts/mooncats/index";
 import { TransactionStateProvider } from "./contexts/TransactionState";
