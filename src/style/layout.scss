@@ -19,6 +19,18 @@
   }
 }
 
+.inline-form .cat-input {
+  padding: 5px;
+  font-size: 24px;
+  margin-right: 10px;
+  width: 250px;
+}
+
+.form-error {
+  color: #f00;
+  font-size: 24px;
+}
+
 .header {
   width: 100%;
   display: flex;

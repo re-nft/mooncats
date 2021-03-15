@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useContext, useEffect } from "react";
 import GraphContext from "../../contexts/graph/index";
-import { Cat, CatInfo } from "../../contexts/graph/types";
+import { Cat } from "../../contexts/graph/types";
+import MooncatRescueContext from "../../contexts/mooncats/index";
 import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
-import { WRAPPER } from "../../utils";
+import { WRAPPER, calculatePrice } from "../../utils";
 import Modal from "../ui/modal";
+import { ethers } from "ethers";
 
 enum Filters {
   IN_MY_WALLET,
@@ -20,10 +22,13 @@ const TAKE_COUNTER = 120;
 
 export const AllCats: React.FC = () => {
   const { fetchAllMoonCats, catInfo } = useContext(GraphContext);
+  const { acceptOffer } = useContext(MooncatRescueContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentCat, setCurrentCat] = useState<Cat>();
+  const [error, setError] = useState<string>();
   const [currentBidPrice, setCurrentBidPrice] = useState<string>();
   const [isOpenBidModal, setOpenBidModal] = useState<boolean>(false);
+  const [isOpenBuyModal, setOpenBuyModal] = useState<boolean>(false);
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
@@ -38,7 +43,12 @@ export const AllCats: React.FC = () => {
     setOpenBidModal(true);
     setCurrentCat(cat);
   }, []);
+  const handleBuyModalOpen = useCallback((cat: Cat) => {
+    setOpenBuyModal(true);
+    setCurrentCat(cat);
+  }, []);
   const handleModalClose = useCallback(() => setOpenBidModal(false), []);
+  const handleBuyModalClose = useCallback(() => setOpenBuyModal(false), []);
 
   const handleRefresh = useCallback(() => {
     const skip = skipCount === 0 ? TAKE_COUNTER : skipCount;
@@ -83,9 +93,23 @@ export const AllCats: React.FC = () => {
     [setCurrentBidPrice]
   );
 
-  const handleBuyNow = useCallback((cat: Cat) => {
-    handleRefresh();
-  }, []);
+  const handleBuyNow = useCallback(async () => {
+    if (currentCat && currentCat.activeAdoptionOffer) {
+      console.log(currentCat, currentCat.activeAdoptionOffer);
+      try {
+        const resolvedPrice = ethers.utils.parseEther(
+          currentCat.activeAdoptionOffer.price
+        );
+        await acceptOffer(currentCat.id, resolvedPrice.toString());
+      } catch (e) {
+        console.warn(e);
+        // TODO: add description for all errors code
+        setError(`insufficient funds for transfer`);
+      }
+      setCurrentCat(undefined);
+      handleModalClose();
+    }
+  }, [currentCat]);
 
   const handleOnBidSubmit = useCallback(() => {
     if (currentBidPrice && currentCat) {
@@ -183,7 +207,7 @@ export const AllCats: React.FC = () => {
                   {cat.activeAdoptionOffer && (
                     <button
                       className="nft__button"
-                      onClick={() => handleBuyNow(cat)}
+                      onClick={() => handleBuyModalOpen(cat)}
                     >
                       Buy now
                     </button>
@@ -222,7 +246,7 @@ export const AllCats: React.FC = () => {
                   {cat.activeAdoptionOffer && (
                     <button
                       className="nft__button"
-                      onClick={() => handleBuyNow(cat)}
+                      onClick={() => handleBuyModalOpen(cat)}
                     >
                       Buy now
                     </button>
@@ -252,6 +276,22 @@ export const AllCats: React.FC = () => {
             Place Bid
           </button>
         </div>
+      </Modal>
+      <Modal open={isOpenBuyModal} handleClose={handleBuyModalClose}>
+        <div className="inline-form">
+          <input
+            className="cat-input"
+            value={`${
+              currentCat &&
+              calculatePrice(currentCat.activeAdoptionOffer?.price || "")
+            } ETH`}
+            onChange={handleOnBidPriceChange}
+          />
+          <button className="nft__button" onClick={handleBuyNow}>
+            BUY NOW
+          </button>
+        </div>
+        {error && <div className="form-error">{error}</div>}
       </Modal>
     </div>
   );
