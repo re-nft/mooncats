@@ -6,7 +6,6 @@ import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
 import { WRAPPER, calculatePrice } from "../../utils";
 import Modal from "../ui/modal";
-import { ethers } from "ethers";
 
 enum Filters {
   IN_MY_WALLET,
@@ -26,9 +25,8 @@ export const AllCats: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentCat, setCurrentCat] = useState<Cat>();
   const [error, setError] = useState<string>();
-  const [currentBidPrice, setCurrentBidPrice] = useState<string>();
-  const [isOpenBidModal, setOpenBidModal] = useState<boolean>(false);
-  const [isOpenBuyModal, setOpenBuyModal] = useState<boolean>(false);
+  const [currentPrice, setCurrentPrice] = useState<string>();
+  const [isOpenModal, setOpenModal] = useState<boolean>(false);
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
@@ -40,25 +38,12 @@ export const AllCats: React.FC = () => {
   const [show, setShow] = useState<WrappedFilters>(WrappedFilters.ALL);
 
   const handleModalOpen = useCallback((cat: Cat) => {
-    setOpenBidModal(true);
+    setError(undefined);
+    setOpenModal(true);
     setCurrentCat(cat);
   }, []);
-  const handleBuyModalOpen = useCallback((cat: Cat) => {
-    setOpenBuyModal(true);
-    setCurrentCat(cat);
-  }, []);
-  const handleModalClose = useCallback(() => setOpenBidModal(false), []);
-  const handleBuyModalClose = useCallback(() => setOpenBuyModal(false), []);
 
-  const handleRefresh = useCallback(() => {
-    const skip = skipCount === 0 ? TAKE_COUNTER : skipCount;
-    fetchAllMoonCats(skip, 0).then((items: Cat[] | undefined) => {
-      if (items) {
-        setCats(items);
-      }
-    });
-    // todo: fetchAllMoonCats missing from deps warning
-  }, [skipCount]);
+  const handleModalClose = useCallback(() => setOpenModal(false), []);
 
   const onCopyToClipboard = useCallback((cat: Cat) => {
     const textField = document.createElement("textarea");
@@ -85,41 +70,26 @@ export const AllCats: React.FC = () => {
     );
   }, [activeFilter, setActiveFilter]);
 
-  const handleOnBidPriceChange = useCallback(
+  const handleOnPriceChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const value = evt.target.value;
-      setCurrentBidPrice(value);
+      setCurrentPrice(value);
     },
-    [setCurrentBidPrice]
+    [setCurrentPrice]
   );
 
   const handleBuyNow = useCallback(async () => {
     if (currentCat && currentCat.activeAdoptionOffer) {
-      console.log(currentCat, currentCat.activeAdoptionOffer);
       try {
-        const resolvedPrice = ethers.utils.parseEther(
-          currentCat.activeAdoptionOffer.price
-        );
-        await acceptOffer(currentCat.id, resolvedPrice.toString());
+        await acceptOffer(currentCat.id, currentCat.activeAdoptionOffer.price);
       } catch (e) {
         console.warn(e);
-        // TODO: add description for all errors code
-        setError(`insufficient funds for transfer`);
+        setError(e?.message);
       }
       setCurrentCat(undefined);
       handleModalClose();
     }
-  }, [currentCat]);
-
-  const handleOnBidSubmit = useCallback(() => {
-    if (currentBidPrice && currentCat) {
-      setCurrentBidPrice("");
-      setCurrentCat(undefined);
-      handleModalClose();
-      handleRefresh();
-    }
-    // todo: handleRefresh missing from deps here
-  }, [currentBidPrice, currentCat, handleModalClose]);
+  }, [currentCat, handleModalClose, acceptOffer]);
 
   const loadMore = useCallback(() => {
     const skip = skipCount + TAKE_COUNTER;
@@ -145,6 +115,7 @@ export const AllCats: React.FC = () => {
 
   const showUnwrapped = ({ activeAdoptionOffer }: Cat) =>
     activeAdoptionOffer?.toAddress.toLowerCase() !== WRAPPER;
+  // todo: what is this?
   const showAll = ({ activeAdoptionOffer }: Cat) => true;
   const inMyWallet = cats
     .filter(({ inWallet }) => inWallet)
@@ -198,16 +169,10 @@ export const AllCats: React.FC = () => {
                 onClick={onCopyToClipboard}
               >
                 <div className="nft__control">
-                  <button
-                    className="nft__button"
-                    onClick={() => handleModalOpen(cat)}
-                  >
-                    Bid
-                  </button>
                   {cat.activeAdoptionOffer && (
                     <button
                       className="nft__button"
-                      onClick={() => handleBuyModalOpen(cat)}
+                      onClick={() => handleModalOpen(cat)}
                     >
                       Buy now
                     </button>
@@ -237,16 +202,10 @@ export const AllCats: React.FC = () => {
                 onClick={onCopyToClipboard}
               >
                 <div className="nft__control">
-                  <button
-                    className="nft__button"
-                    onClick={() => handleModalOpen(cat)}
-                  >
-                    Bid
-                  </button>
                   {cat.activeAdoptionOffer && (
                     <button
                       className="nft__button"
-                      onClick={() => handleBuyModalOpen(cat)}
+                      onClick={() => handleModalOpen(cat)}
                     >
                       Buy now
                     </button>
@@ -265,19 +224,7 @@ export const AllCats: React.FC = () => {
         </>
       )}
       {isCopiedSuccessfully && <CatNotifer />}
-      <Modal open={isOpenBidModal} handleClose={handleModalClose}>
-        <div className="cat-form">
-          <input
-            className="cat-input"
-            placeholder="PRICE IN ETH"
-            onChange={handleOnBidPriceChange}
-          />
-          <button className="nft__button" onClick={handleOnBidSubmit}>
-            Place Bid
-          </button>
-        </div>
-      </Modal>
-      <Modal open={isOpenBuyModal} handleClose={handleBuyModalClose}>
+      <Modal open={isOpenModal} handleClose={handleModalClose}>
         <div className="inline-form">
           <input
             className="cat-input"
@@ -285,7 +232,7 @@ export const AllCats: React.FC = () => {
               currentCat &&
               calculatePrice(currentCat.activeAdoptionOffer?.price || "")
             } ETH`}
-            onChange={handleOnBidPriceChange}
+            onChange={handleOnPriceChange}
           />
           <button className="nft__button" onClick={handleBuyNow}>
             BUY NOW

@@ -167,7 +167,12 @@ export const MooncatsProvider: React.FC = ({ children }) => {
       console.warn("you must connect a metamask wallet first");
       return;
     }
-    (await _contract.acceptAdoptionOffer(catId, { value: offerPrice })).catch(
+    (
+      await _contract.acceptAdoptionOffer(catId, {
+        value: offerPrice,
+        gasLimit: 150_000,
+      })
+    ).catch(
       //@ts-ignore
       (e) => {
         console.error(e);
