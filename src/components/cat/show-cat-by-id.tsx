@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from "react";
+import React, { useState, useCallback, useContext, useEffect } from "react";
 import GraphContext from "../../contexts/graph/index";
 import { Cat, CatInfo } from "../../contexts/graph/types";
 import { WRAPPER, calculatePrice, drawCat } from "../../utils";
@@ -9,7 +9,6 @@ export const ShowCatById: React.FC = () => {
   const { fetchCatById, catInfo } = useContext(GraphContext);
   const [catId, setCatId] = useState<string>("");
   const [catImg, setCatImg] = useState<string>();
-  const [isValid, setIsValid] = useState<boolean>(true);
   const [cat, setCat] = useState<Cat>();
 
   const handleOnChange = useCallback(
@@ -34,6 +33,21 @@ export const ShowCatById: React.FC = () => {
     // @ts-ignore
     setCat({});
   }, [setCat, catId, fetchCatById]);
+
+  useEffect(() => {
+    const param = new URLSearchParams(window.location.search);
+    if (param.get("catId")) {
+      const catId = param.get("catId");
+      setCatId(catId ?? "");
+      if (catId) {
+        const img = drawCat(catId, 10);
+        if (img) {
+          setCatImg(img);
+          fetchCatById(catId).then((data) => setCat(data));
+        }
+      }
+    }
+  }, []);
 
   const info: CatInfo | undefined = catInfo && catInfo[catId];
   return (

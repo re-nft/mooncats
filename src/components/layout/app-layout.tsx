@@ -55,6 +55,13 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    const param = new URLSearchParams(window.location.search);
+    if (param.get("catId")) {
+      setActiveTab(Tabs.SHOW_CAT_BY_ID);
+    }
+  }, []);
+
+  useEffect(() => {
     function watchScroll() {
       window.addEventListener("scroll", updateHeaderPosition);
     }
@@ -115,22 +122,6 @@ const App: React.FC = () => {
       </div>
       <div className="content-wrapper footer-content">
         <div className="copy">2021 ReNFT</div>
-        <div className="soc">
-          <a
-            href="https://discord.gg/ka2u9n5sWs"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span className="discord"></span>
-          </a>
-          <a
-            href="https://twitter.com/renftlabs"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span className="twitter"></span>
-          </a>
-        </div>
       </div>
       <TransactionNotifier />
     </Layout>
