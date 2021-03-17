@@ -8,7 +8,7 @@ import { queryMyMoonCats, queryAllCats, queryCatById } from "./queries";
 import { Cat, CatInfo } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
-  "https://api.thegraph.com/subgraphs/name/rentft/moon-cat-rescue";
+  "https://api.thegraph.com/subgraphs/id/QmcdqyoCZnM4teNKwScPRrpuUygUM6ckutJJcMrvESBGpY";
 
 type GraphContextType = {
   usersMoonCats: Cat[];
