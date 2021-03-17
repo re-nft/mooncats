@@ -43,7 +43,6 @@ const CatItem: React.FC<{
     () => setHistoryModalOpen(false),
     []
   );
-  const hasHistory = requestPrices.length !== 0 || offerPrices.length !== 0;
 
   const onClickHandler = useCallback(() => {
     onClick(cat);
@@ -57,16 +56,11 @@ const CatItem: React.FC<{
           {activeAdoptionOffer?.toAddress.toLowerCase() == WRAPPER && (
             <div className="nft__adoption_offered">W</div>
           )}
-          {/* {wasWrapped && <div className="nft__was_wrapped">W</div>} */}
-          {activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER &&
-            activeAdoptionOffer && (
-              <div className="nft__adoption_offered">O</div>
-            )}
           {activeAdoptionRequest && (
             <div className="nft__adoption_requested">R</div>
           )}
         </div>
-        {hasHistory && (
+        {offerPrices.length > 1 && (
           <div className="nft__history" onClick={handleHistoryModalOpen}>
             H
           </div>
@@ -85,6 +79,20 @@ const CatItem: React.FC<{
           onClick={onClickHandler}
           title="Click to Copy Cat ID"
         >
+          {activeAdoptionOffer &&
+            activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER && (
+              <div className="nft__meta_row">
+                <div className="nft__meta_title">
+                  <b style={{ fontSize: "24px" }}>Price</b>
+                </div>
+                <div className="nft__meta_dot"></div>
+                <div className="nft__meta_value">
+                  <b style={{ fontSize: "24px" }}>
+                    {calculatePrice(activeAdoptionOffer.price)}&nbsp;ETH
+                  </b>
+                </div>
+              </div>
+            )}
           <div className="nft__meta_row">
             <div className="nft__meta_title">Cat id</div>
             <div className="nft__meta_dot"></div>

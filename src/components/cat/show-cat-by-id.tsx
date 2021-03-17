@@ -49,8 +49,8 @@ export const ShowCatById: React.FC = () => {
       prepareDataForCat(catId);
     }
   }, [catId]);
-  const info: CatInfo | undefined = catInfo && catInfo[originCatId];
 
+  const info: CatInfo | undefined = catInfo && catInfo[catId || originCatId];
   return (
     <div className="content">
       <div className="cat-overview">
