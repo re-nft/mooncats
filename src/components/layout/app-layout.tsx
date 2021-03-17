@@ -39,10 +39,24 @@ const App: React.FC = () => {
           }`}
         >
           <div className="menu">
-            <NavLink className="menu__item" to="/all">
+            <NavLink
+              className="menu__item"
+              to="/"
+              isActive={(_, location) => {
+                if (location.pathname === "/") return true;
+                return false;
+              }}
+            >
               All Cats
             </NavLink>
-            <NavLink className="menu__item" to="/my-cats">
+            <NavLink
+              className="menu__item"
+              to="/my-cats"
+              isActive={(_, location) => {
+                if (location.pathname === "/my-cats") return true;
+                return false;
+              }}
+            >
               My cats
             </NavLink>
             <NavLink className="menu__item" to="/cat/default">
