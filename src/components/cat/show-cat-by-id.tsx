@@ -68,6 +68,10 @@ export const ShowCatById: React.FC = () => {
         ]}
       />
       <div className="content">
+        <Helmet>
+          {catImg && <meta property="og:image" content={catImg} />}
+          {catImg && <meta property="og:image:secure_url" content={catImg} />}
+        </Helmet>
         <div className="cat-overview">
           <div className="item pic">
             {cat && catImg && (
