@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { ethers } from "ethers";
 import { Cat, CatInfo } from "../../contexts/graph/types";
 import { WRAPPER, hexToAscii, calculatePrice, drawCat } from "../../utils";
@@ -70,13 +71,15 @@ const CatItem: React.FC<{
             H
           </div>
         )}
-        <div className="nft__image">
-          {img ? (
-            <img loading="lazy" src={img} />
-          ) : (
-            <div className="no-img">NO CAT</div>
-          )}
-        </div>
+        <Link className="pseudo-link" to={`/cat/${id}`}>
+          <div className="nft__image">
+            {img ? (
+              <img loading="lazy" src={img} />
+            ) : (
+              <div className="no-img">NO CAT</div>
+            )}
+          </div>
+        </Link>
         <div
           className="nft__meta"
           onClick={onClickHandler}
