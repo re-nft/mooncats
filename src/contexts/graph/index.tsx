@@ -8,7 +8,7 @@ import { queryMyMoonCats, queryAllCats, queryCatById } from "./queries";
 import { Cat, CatInfo } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
-  "https://api.thegraph.com/subgraphs/id/QmcdqyoCZnM4teNKwScPRrpuUygUM6ckutJJcMrvESBGpY";
+  "https://api.thegraph.com/subgraphs/id/QmcCUrS1bc6ME13hUYJMYD63YaeK2GgQAyUwB3L8oeWuHR";
 
 type GraphContextType = {
   usersMoonCats: Cat[];
@@ -56,12 +56,12 @@ export const GraphProvider: React.FC = ({ children }) => {
     const query = queryMyMoonCats(currentAddress);
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
-      moonRescuers: { cats?: Cat[] }[];
+      owners: { cats?: Cat[] }[];
     } = await timeItAsync(
       `Pulled My Moon Cat Nfts`,
       async () => await request(subgraphURI, query)
     );
-    const [first] = response.moonRescuers;
+    const [first] = response.owners;
     if (first) {
       setUsersMoonCats(first?.cats ?? []);
     }

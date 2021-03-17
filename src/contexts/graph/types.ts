@@ -13,18 +13,14 @@ export type AdoptionOffer = {
 export type Cat = {
   id: string;
   name?: string;
-  inWallet: boolean;
+  isWrapped: boolean;
   rescueTimestamp: string;
-  activeAdoptionRequest?: AdoptionRequest;
-  activeAdoptionOffer?: AdoptionOffer;
-  requestPrices: {
-    price: string;
-    timestamp: string;
-  }[];
-  offerPrices: {
-    price: string;
-    timestamp: string;
-  }[];
+  activeRequest?: AdoptionRequest;
+  activeOffer?: AdoptionOffer;
+  provenance?: {
+    requestPrices?: AdoptionRequest[];
+    offerPrices?: AdoptionOffer[];
+  };
 };
 
 export type CatInfo = {
