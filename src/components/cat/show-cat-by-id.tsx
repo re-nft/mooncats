@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useContext, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import GraphContext from "../../contexts/graph/index";
 import { Cat, CatInfo } from "../../contexts/graph/types";
 import { WRAPPER, calculatePrice, drawCat } from "../../utils";
@@ -6,8 +7,9 @@ import moment from "moment";
 import { ethers } from "ethers";
 
 export const ShowCatById: React.FC = () => {
+  const { catId } = useParams<{ catId: string }>();
   const { fetchCatById, catInfo } = useContext(GraphContext);
-  const [catId, setCatId] = useState<string>("");
+  const [originCatId, setCatId] = useState<string>("");
   const [catImg, setCatImg] = useState<string>();
   const [cat, setCat] = useState<Cat>();
 
@@ -16,12 +18,15 @@ export const ShowCatById: React.FC = () => {
       const value = evt.target.value;
       if (value !== "" && value.trim() !== "") {
         setCatId(value);
+        // @ts-ignore
+        setCat({});
+        setCatImg(undefined);
       }
     },
     [setCatId]
   );
 
-  const handleOnClick = useCallback(() => {
+  const prepareDataForCat = (catId: string) => {
     if (catId) {
       const img = drawCat(catId, 10);
       if (img) {
@@ -29,32 +34,28 @@ export const ShowCatById: React.FC = () => {
         fetchCatById(catId).then((data) => setCat(data));
       }
     }
+  };
 
+  const handleOnClick = useCallback(() => {
+    if (originCatId) {
+      window.location.pathname = `/cat/${originCatId}`;
+    }
     // @ts-ignore
     setCat({});
-  }, [setCat, catId, fetchCatById]);
+  }, [setCat, originCatId, fetchCatById]);
 
   useEffect(() => {
-    const param = new URLSearchParams(window.location.search);
-    if (param.get("catId")) {
-      const catId = param.get("catId");
-      setCatId(catId ?? "");
-      if (catId) {
-        const img = drawCat(catId, 10);
-        if (img) {
-          setCatImg(img);
-          fetchCatById(catId).then((data) => setCat(data));
-        }
-      }
+    if (catId !== "default") {
+      prepareDataForCat(catId);
     }
-  }, []);
+  }, [catId]);
+  const info: CatInfo | undefined = catInfo && catInfo[originCatId];
 
-  const info: CatInfo | undefined = catInfo && catInfo[catId];
   return (
     <div className="content">
       <div className="cat-overview">
         <div className="item pic">
-          {catImg && (
+          {cat && catImg && (
             <div className="cat-preview nft">
               <div className="nft__image">
                 <img loading="lazy" src={catImg} />
@@ -62,7 +63,7 @@ export const ShowCatById: React.FC = () => {
               <div className="nft__meta_row">
                 <div className="nft__meta_title">Cat id</div>
                 <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">{catId}</div>
+                <div className="nft__meta_value">{originCatId}</div>
               </div>
               {info && (
                 <>
