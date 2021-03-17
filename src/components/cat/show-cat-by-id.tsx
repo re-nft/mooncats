@@ -85,7 +85,7 @@ export const ShowCatById: React.FC = () => {
                 <div className="nft__meta_row">
                   <div className="nft__meta_title">Cat id</div>
                   <div className="nft__meta_dot"></div>
-                  <div className="nft__meta_value">{originCatId}</div>
+                  <div className="nft__meta_value">{catId}</div>
                 </div>
                 {info && (
                   <>
