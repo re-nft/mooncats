@@ -61,10 +61,13 @@ export const ShowCatById: React.FC = () => {
         htmlAttributes={{ lang: "en" }}
         title={catId}
         meta={[
-          { name: "url", content: `https://mooncat.shop/cat/${originCatId}` },
-          { name: "image", content: catImg },
-          { name: "description", content: "reNFTs MoonCat Base" },
-          { name: "title", content: "MoonCat Rescue Shop" },
+          {
+            property: "og:url",
+            content: `https://mooncat.shop/cat/${originCatId}`,
+          },
+          { property: "og:image", content: catImg },
+          { property: "og:description", content: "reNFTs MoonCat Base" },
+          { property: "og:title", content: "MoonCat Rescue Shop" },
         ]}
       />
       <div className="content">
