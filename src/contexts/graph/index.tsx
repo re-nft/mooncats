@@ -4,8 +4,13 @@ import { request } from "graphql-request";
 import { CurrentAddressContext } from "../../hardhat/SymfoniContext";
 import { timeItAsync } from "../../utils";
 
-import { queryMyMoonCats, queryAllCats, queryCatById } from "./queries";
-import { Cat, CatInfo } from "./types";
+import {
+  queryMyMoonCats,
+  queryAllCats,
+  queryCatById,
+  queryAllRequests,
+} from "./queries";
+import { Cat, CatInfo, AdoptionRequest } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
   "https://api.thegraph.com/subgraphs/id/QmcCUrS1bc6ME13hUYJMYD63YaeK2GgQAyUwB3L8oeWuHR";
@@ -13,6 +18,7 @@ const ENDPOINT_MOONCAT_PROD =
 type GraphContextType = {
   usersMoonCats: Cat[];
   allMoonCats: Cat[];
+  allRequests: AdoptionRequest[];
   isDataLoading: boolean;
   catInfo: Record<string, CatInfo>;
   fetchCatById(catId: string): Promise<Cat | undefined>;
@@ -22,6 +28,7 @@ type GraphContextType = {
 const DefaultGraphContext: GraphContextType = {
   usersMoonCats: [],
   allMoonCats: [],
+  allRequests: [],
   catInfo: {},
   isDataLoading: false,
   // @ts-ignore
@@ -49,6 +56,7 @@ export const GraphProvider: React.FC = ({ children }) => {
   const [currentAddress] = useContext(CurrentAddressContext);
   const [usersMoonCats, setUsersMoonCats] = useState<Cat[]>([]);
   const [allMoonCats, _] = useState<Cat[]>([]);
+  const [allRequests, setAllRequests] = useState<AdoptionRequest[]>([]);
   const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>({});
 
   const fetchMyMoonCats = async () => {
@@ -83,6 +91,19 @@ export const GraphProvider: React.FC = ({ children }) => {
     return response?.cats ?? [];
   };
 
+  const fetchAllRequests = async () => {
+    if (!currentAddress) return;
+    const query = queryAllRequests();
+    const subgraphURI = ENDPOINT_MOONCAT_PROD;
+    const response: {
+      requestPrices: AdoptionRequest[];
+    } = await timeItAsync(
+      `Pulled All Requests`,
+      async () => await request(subgraphURI, query)
+    );
+    setAllRequests(response.requestPrices ?? []);
+  };
+
   const fetchCatById = async (catId: string): Promise<Cat | undefined> => {
     if (!currentAddress) return;
     const query = queryCatById(catId);
@@ -110,7 +131,11 @@ export const GraphProvider: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
-    Promise.all([fetchMyMoonCats(), fetchRarityData()]).then(() => {
+    Promise.all([
+      fetchMyMoonCats(),
+      fetchRarityData(),
+      fetchAllRequests(),
+    ]).then(() => {
       setDataLoading(true);
     });
     /* eslint-disable-next-line */
@@ -121,6 +146,7 @@ export const GraphProvider: React.FC = ({ children }) => {
       value={{
         usersMoonCats,
         allMoonCats,
+        allRequests,
         catInfo,
         isDataLoading,
         fetchAllMoonCats,

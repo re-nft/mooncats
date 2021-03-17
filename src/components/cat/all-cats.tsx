@@ -14,6 +14,7 @@ enum WrappedFilters {
 }
 
 const TAKE_COUNTER = 120;
+const isWrappedFilter = (cat: Cat) => cat.isWrapped;
 
 export const AllCats: React.FC = () => {
   const { fetchAllMoonCats, catInfo, isDataLoading } = useContext(GraphContext);
@@ -78,12 +79,14 @@ export const AllCats: React.FC = () => {
 
   const loadMore = useCallback(() => {
     const skip = skipCount + TAKE_COUNTER;
+    const last = window.pageYOffset;
     setIsLoading(true);
     fetchAllMoonCats(TAKE_COUNTER, skip).then((items: Cat[] | undefined) => {
       if (items) {
         setCats((prev) => prev.concat(...items));
         setSkipCount(skip);
         setIsLoading(false);
+        window.scrollTo(0, last);
       }
     });
   }, [skipCount, fetchAllMoonCats]);
@@ -109,6 +112,9 @@ export const AllCats: React.FC = () => {
     );
   }
 
+  const wrapped = cats.filter(({ isWrapped }: Cat) => isWrapped);
+  const original = cats.filter(({ isWrapped }: Cat) => !isWrapped);
+
   return (
     <div className="content">
       <div className="content__row content__navigation">
@@ -124,28 +130,54 @@ export const AllCats: React.FC = () => {
           <div className="switch__title">{showTitle}</div>
         </div>
       </div>
-      <div className="content__row content__items">
-        {cats.map((cat) => (
-          <CatItem
-            key={cat.id}
-            cat={cat}
-            catInfo={catInfo && catInfo[cat.id]}
-            hasRescuerIdx={true}
-            onClick={onCopyToClipboard}
-          >
-            <div className="nft__control">
-              {cat.activeOffer && (
-                <button
-                  className="nft__button"
-                  onClick={() => handleModalOpen(cat)}
-                >
-                  Buy now
-                </button>
-              )}
-            </div>
-          </CatItem>
-        ))}
-      </div>
+      {show === WrappedFilters.ALL && (
+        <div className="content__row content__items">
+          {original.map((cat) => (
+            <CatItem
+              key={cat.id}
+              cat={cat}
+              catInfo={catInfo && catInfo[cat.id]}
+              hasRescuerIdx={true}
+              onClick={onCopyToClipboard}
+            >
+              <div className="nft__control">
+                {cat.activeOffer && (
+                  <button
+                    className="nft__button"
+                    onClick={() => handleModalOpen(cat)}
+                  >
+                    Buy now
+                  </button>
+                )}
+              </div>
+            </CatItem>
+          ))}
+        </div>
+      )}
+      {show === WrappedFilters.WRAPPED && (
+        <div className="content__row content__items">
+          {wrapped.map((cat) => (
+            <CatItem
+              key={cat.id}
+              cat={cat}
+              catInfo={catInfo && catInfo[cat.id]}
+              hasRescuerIdx={true}
+              onClick={onCopyToClipboard}
+            >
+              <div className="nft__control">
+                {cat.activeOffer && (
+                  <button
+                    className="nft__button"
+                    onClick={() => handleModalOpen(cat)}
+                  >
+                    Buy now
+                  </button>
+                )}
+              </div>
+            </CatItem>
+          ))}
+        </div>
+      )}
       {!isLoading && (
         <div className="load-more">
           <button className="nft__button" onClick={loadMore}>

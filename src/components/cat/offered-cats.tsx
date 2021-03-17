@@ -68,6 +68,7 @@ export const OfferedCats: React.FC = () => {
 
   const loadMore = useCallback(() => {
     const skip = skipCount + TAKE_COUNTER;
+    const last = window.pageYOffset;
     setIsLoading(true);
     fetchAllMoonCats(TAKE_COUNTER, skip).then((items: Cat[] | undefined) => {
       if (items) {
@@ -75,6 +76,7 @@ export const OfferedCats: React.FC = () => {
         setCats((prev) => prev.concat(...fItems));
         setSkipCount(skip);
         setIsLoading(false);
+        window.scrollTo(0, last);
       }
     });
   }, [skipCount, fetchAllMoonCats]);
