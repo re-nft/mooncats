@@ -45,10 +45,7 @@ const CatItem: React.FC<{
     <>
       <div className="nft" key={id} data-item-id={id}>
         <div className="nft__adoption" onClick={handleModalOpen}>
-          {/* TODO: note nft__adoption_offered class on wrapper */}
-          {activeOffer?.to.toLowerCase() == WRAPPER && (
-            <div className="nft__adoption_offered">W</div>
-          )}
+          {cat.isWrapped && <div className="nft__adoption_offered">W</div>}
           {activeRequest && <div className="nft__adoption_requested">R</div>}
         </div>
         {provenance?.offerPrices && provenance?.offerPrices?.length > 1 && (
