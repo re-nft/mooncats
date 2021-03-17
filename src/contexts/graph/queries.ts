@@ -1,29 +1,39 @@
 export const queryMyMoonCats = (user: string): string => {
   return `{
-    moonRescuers(where: { id: "${user.toLowerCase()}" }) {
+    owners(where: { id: "${user.toLowerCase()}" }) {
       id,
       cats {
         id
         name
-        inWallet
+        isWrapped
         rescueTimestamp
-        activeAdoptionRequest {
+        activeRequest {
           id
           price
           from
         }
-        requestPrices {
-          price
-          timestamp
-        }
-        offerPrices {
-          price
-          timestamp
-        } 
-        activeAdoptionOffer {
+        activeOffer {
           id
           price
-          toAddress
+          to
+        }
+        provenance {
+          offerPrices {
+            id
+            price
+            to
+            timestamp
+            filled
+            active
+          }
+          requestPrices {
+            id
+            price
+            from
+            timestamp
+            filled
+            active
+          }
         }
       }
     }
@@ -35,24 +45,35 @@ export const queryCatById = (catId: string): string => {
     cats(where: { id: "${catId}"} ) {
       id
       name
-      inWallet
-      activeAdoptionRequest {
+      isWrapped
+      rescueTimestamp
+      activeRequest {
         id
         price
         from
       }
-      requestPrices {
-        price
-        timestamp
-      }
-      offerPrices {
-        price
-        timestamp
-      } 
-      activeAdoptionOffer {
+      activeOffer {
         id
         price
-        toAddress
+        to
+      }
+      provenance {
+        offerPrices {
+          id
+          price
+          to
+          timestamp
+          filled
+          active
+        }
+        requestPrices {
+          id
+          price
+          from
+          timestamp
+          filled
+          active
+        }
       }
     }
   }`;
@@ -63,25 +84,35 @@ export const queryAllCats = (first: number, offset: number): string => {
       cats(first: ${first}, skip: ${offset}) {
         id
         name
-        inWallet
+        isWrapped
         rescueTimestamp
-        activeAdoptionRequest {
+        activeRequest {
           id
           price
           from
         }
-        requestPrices {
-          price
-          timestamp
-        }
-        offerPrices {
-          price
-          timestamp
-        } 
-        activeAdoptionOffer {
+        activeOffer {
           id
           price
-          toAddress
+          to
+        }
+        provenance {
+          offerPrices {
+            id
+            price
+            to
+            timestamp
+            filled
+            active
+          }
+          requestPrices {
+            id
+            price
+            from
+            timestamp
+            filled
+            active
+          }
         }
       }
   }`;

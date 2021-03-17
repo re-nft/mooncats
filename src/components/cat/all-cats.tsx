@@ -64,9 +64,9 @@ export const AllCats: React.FC = () => {
   );
 
   const handleBuyNow = useCallback(async () => {
-    if (currentCat && currentCat.activeAdoptionOffer) {
+    if (currentCat && currentCat.activeOffer) {
       try {
-        await acceptOffer(currentCat.id, currentCat.activeAdoptionOffer.price);
+        await acceptOffer(currentCat.id, currentCat.activeOffer.price);
       } catch (e) {
         console.warn(e);
         setError(e?.message);
@@ -134,7 +134,7 @@ export const AllCats: React.FC = () => {
             onClick={onCopyToClipboard}
           >
             <div className="nft__control">
-              {cat.activeAdoptionOffer && (
+              {cat.activeOffer && (
                 <button
                   className="nft__button"
                   onClick={() => handleModalOpen(cat)}
@@ -159,8 +159,7 @@ export const AllCats: React.FC = () => {
           <input
             className="cat-input"
             value={`${
-              currentCat &&
-              calculatePrice(currentCat.activeAdoptionOffer?.price || "")
+              currentCat && calculatePrice(currentCat.activeOffer?.price || "")
             } ETH`}
             onChange={handleOnPriceChange}
           />

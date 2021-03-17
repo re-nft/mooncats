@@ -10,8 +10,7 @@ import Loader from "../ui/loader";
 
 const TAKE_COUNTER = 950;
 const offeredFilter = (cat: Cat) =>
-  cat.activeAdoptionOffer &&
-  cat.activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER;
+  cat.activeOffer && cat.activeOffer?.to.toLowerCase() != WRAPPER;
 
 export const OfferedCats: React.FC = () => {
   const { fetchAllMoonCats, catInfo, isDataLoading } = useContext(GraphContext);
@@ -55,9 +54,9 @@ export const OfferedCats: React.FC = () => {
   );
 
   const handleBuyNow = useCallback(async () => {
-    if (currentCat && currentCat.activeAdoptionOffer) {
+    if (currentCat && currentCat.activeOffer) {
       try {
-        await acceptOffer(currentCat.id, currentCat.activeAdoptionOffer.price);
+        await acceptOffer(currentCat.id, currentCat.activeOffer.price);
       } catch (e) {
         console.warn(e);
         setError(e?.message);
@@ -111,7 +110,7 @@ export const OfferedCats: React.FC = () => {
             onClick={onCopyToClipboard}
           >
             <div className="nft__control">
-              {cat.activeAdoptionOffer && (
+              {cat.activeOffer && (
                 <button
                   className="nft__button"
                   onClick={() => handleModalOpen(cat)}
@@ -136,8 +135,7 @@ export const OfferedCats: React.FC = () => {
           <input
             className="cat-input"
             value={`${
-              currentCat &&
-              calculatePrice(currentCat.activeAdoptionOffer?.price || "")
+              currentCat && calculatePrice(currentCat.activeOffer?.price || "")
             } ETH`}
             onChange={handleOnPriceChange}
           />
