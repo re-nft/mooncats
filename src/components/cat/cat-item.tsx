@@ -22,14 +22,7 @@ const CatItem: React.FC<{
 }) => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isHistoryModalOpen, setHistoryModalOpen] = useState<boolean>(false);
-  const {
-    id,
-    name,
-    activeAdoptionOffer,
-    activeAdoptionRequest,
-    requestPrices,
-    offerPrices,
-  } = cat;
+  const { id, name, activeOffer, activeRequest, provenance } = cat;
   const img = drawCat(id, 10);
 
   const handleModalOpen = useCallback(() => setModalOpen(true), []);
@@ -53,14 +46,12 @@ const CatItem: React.FC<{
       <div className="nft" key={id} data-item-id={id}>
         <div className="nft__adoption" onClick={handleModalOpen}>
           {/* TODO: note nft__adoption_offered class on wrapper */}
-          {activeAdoptionOffer?.toAddress.toLowerCase() == WRAPPER && (
+          {activeOffer?.to.toLowerCase() == WRAPPER && (
             <div className="nft__adoption_offered">W</div>
           )}
-          {activeAdoptionRequest && (
-            <div className="nft__adoption_requested">R</div>
-          )}
+          {activeRequest && <div className="nft__adoption_requested">R</div>}
         </div>
-        {offerPrices.length > 1 && (
+        {provenance?.offerPrices && provenance?.offerPrices?.length > 1 && (
           <div className="nft__history" onClick={handleHistoryModalOpen}>
             H
           </div>
@@ -79,20 +70,19 @@ const CatItem: React.FC<{
           onClick={onClickHandler}
           title="Click to Copy Cat ID"
         >
-          {activeAdoptionOffer &&
-            activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER && (
-              <div className="nft__meta_row">
-                <div className="nft__meta_title">
-                  <b style={{ fontSize: "24px" }}>Price</b>
-                </div>
-                <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">
-                  <b style={{ fontSize: "24px" }}>
-                    {calculatePrice(activeAdoptionOffer.price)}&nbsp;ETH
-                  </b>
-                </div>
+          {activeOffer && activeOffer?.to.toLowerCase() != WRAPPER && (
+            <div className="nft__meta_row">
+              <div className="nft__meta_title">
+                <b style={{ fontSize: "24px" }}>Price</b>
               </div>
-            )}
+              <div className="nft__meta_dot"></div>
+              <div className="nft__meta_value">
+                <b style={{ fontSize: "24px" }}>
+                  {calculatePrice(activeOffer.price)}&nbsp;ETH
+                </b>
+              </div>
+            </div>
+          )}
           <div className="nft__meta_row">
             <div className="nft__meta_title">Cat id</div>
             <div className="nft__meta_dot"></div>
@@ -148,12 +138,12 @@ const CatItem: React.FC<{
       </div>
       <Modal open={isHistoryModalOpen} handleClose={handleHistoryModalClose}>
         <div className="adoption">
-          {offerPrices.length !== 0 && (
+          {provenance?.offerPrices && provenance?.offerPrices.length !== 0 && (
             <div className="adoption__item">
               <h3>Historical Offer Prices</h3>
               <ul className="adoption__item_table">
                 {/* @ts-ignore */}
-                {offerPrices
+                {provenance.offerPrices
                   .sort(
                     (a, b) =>
                       //@ts-ignore
@@ -176,12 +166,12 @@ const CatItem: React.FC<{
               </ul>
             </div>
           )}
-          {requestPrices.length !== 0 && (
+          {provenance?.requestPrices && provenance?.requestPrices.length !== 0 && (
             <div className="adoption__item">
               <h3>Historical Request Prices</h3>
               <ul className="adoption__item_table">
                 {/* @ts-ignore */}
-                {requestPrices
+                {provenance.requestPrices
                   .sort(
                     (a, b) =>
                       //@ts-ignore
@@ -208,53 +198,51 @@ const CatItem: React.FC<{
       </Modal>
       <Modal open={isModalOpen} handleClose={handleModalClose}>
         <div
-          className={`adoption ${activeAdoptionOffer && "offer"} ${
-            activeAdoptionRequest && "request"
+          className={`adoption ${activeOffer && "offer"} ${
+            activeRequest && "request"
           }`}
         >
-          {activeAdoptionOffer?.toAddress.toLowerCase() == WRAPPER && (
+          {activeOffer?.to.toLowerCase() == WRAPPER && (
             <div className="adoption__item">
               <h3>Wrapped</h3>
               <p>Too bad...</p>
             </div>
           )}
-          {activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER &&
-            activeAdoptionOffer && (
-              <div className="adoption__item">
-                <h3>Offer</h3>
-                <p>
-                  Owner of this cat is offering &nbsp;
-                  {activeAdoptionOffer.toAddress !=
-                  ethers.constants.AddressZero ? (
-                    <a
-                      target="blank"
-                      rel="noreferrer"
-                      href={`https://etherscan.io/address/${activeAdoptionOffer.toAddress}`}
-                    >
-                      {activeAdoptionOffer.toAddress}
-                    </a>
-                  ) : (
-                    "everyone"
-                  )}
-                  , to buy it from them for{" "}
-                  {calculatePrice(activeAdoptionOffer.price)} ETH
-                </p>
-              </div>
-            )}
-          {activeAdoptionRequest && (
+          {activeOffer?.to.toLowerCase() != WRAPPER && activeOffer && (
+            <div className="adoption__item">
+              <h3>Offer</h3>
+              <p>
+                Owner of this cat is offering &nbsp;
+                {activeOffer.to != ethers.constants.AddressZero ? (
+                  <a
+                    target="blank"
+                    rel="noreferrer"
+                    href={`https://etherscan.io/address/${activeOffer.to}`}
+                  >
+                    {activeOffer.to}
+                  </a>
+                ) : (
+                  "everyone"
+                )}
+                , to buy it from them for {calculatePrice(activeOffer.price)}{" "}
+                ETH
+              </p>
+            </div>
+          )}
+          {activeRequest && (
             <div className="adoption__item">
               <h3>Request</h3>
               <p>
                 <a
                   target="blank"
                   rel="noreferrer"
-                  href={`https://etherscan.io/address/${activeAdoptionRequest.from}`}
+                  href={`https://etherscan.io/address/${activeRequest.from}`}
                 >
-                  {activeAdoptionRequest.from}
+                  {activeRequest.from}
                 </a>{" "}
                 likes this cat, and they want to buy it for&nbsp;
-                {calculatePrice(activeAdoptionRequest.price)} ETH
-                {activeAdoptionOffer?.toAddress.toLowerCase() == WRAPPER &&
+                {calculatePrice(activeRequest.price)} ETH
+                {activeOffer?.to.toLowerCase() == WRAPPER &&
                   "... shame it is wrapped :("}
               </p>
             </div>

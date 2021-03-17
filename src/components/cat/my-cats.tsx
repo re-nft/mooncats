@@ -92,7 +92,7 @@ export const MyCats: React.FC = () => {
               onClick={onCopyToClipboard}
             >
               <div className="nft__control">
-                {!cat.activeAdoptionOffer && (
+                {!cat.activeOffer && (
                   <button
                     className="nft__button"
                     onClick={() => handleModalOpen(cat)}
@@ -100,7 +100,7 @@ export const MyCats: React.FC = () => {
                     Sell
                   </button>
                 )}
-                {cat.activeAdoptionOffer && (
+                {cat.activeOffer && (
                   <button
                     className="nft__button"
                     onClick={() => handleOnCancelSubmit(cat)}
@@ -108,7 +108,7 @@ export const MyCats: React.FC = () => {
                     Cancel Sell
                   </button>
                 )}
-                {cat.activeAdoptionRequest && (
+                {cat.activeRequest && (
                   <button className="nft__button">Pending Bid</button>
                 )}
               </div>

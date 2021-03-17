@@ -2,12 +2,18 @@ export type AdoptionRequest = {
   id: string;
   price: string;
   from: string;
+  timestamp: string;
+  active: boolean;
+  filled: boolean;
 };
 
 export type AdoptionOffer = {
   id: string;
   price: string;
-  toAddress: string;
+  to: string;
+  timestamp: string;
+  active: boolean;
+  filled: boolean;
 };
 
 export type Cat = {

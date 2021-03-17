@@ -104,116 +104,116 @@ export const ShowCatById: React.FC = () => {
         <div className="item adoption">
           {cat && (
             <div className="adoption">
-              {cat.offerPrices && cat.offerPrices.length !== 0 && (
-                <div className="adoption__item">
-                  <h3>Historical Offer Prices</h3>
-                  <ul className="adoption__item_table">
-                    {/* @ts-ignore */}
-                    {cat.offerPrices
-                      .sort(
-                        (a, b) =>
-                          //@ts-ignore
-                          new Date(Number(a.timestamp) * 100) -
-                          //@ts-ignore
-                          new Date(Number(b.timestamp) * 100)
-                      )
-                      .map((item) => (
-                        <li className="table-row" key={item.timestamp}>
-                          <span className="table-row-column">
-                            {moment(Number(item.timestamp) * 1000).format(
-                              "MMMM D YYYY h:mm"
-                            )}
-                          </span>
-                          <span className="table-row-column">
-                            {calculatePrice(item.price)}&nbsp;ETH
-                          </span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
-              {cat.requestPrices && cat.requestPrices.length !== 0 && (
-                <div className="adoption__item">
-                  <h3>Historical Request Prices</h3>
-                  <ul className="adoption__item_table">
-                    {/* @ts-ignore */}
-                    {cat.requestPrices
-                      .sort(
-                        (a, b) =>
-                          //@ts-ignore
-                          new Date(Number(a.timestamp) * 100) -
-                          //@ts-ignore
-                          new Date(Number(b.timestamp) * 100)
-                      )
-                      .map((item) => (
-                        <li className="table-row" key={item.timestamp}>
-                          <span className="table-row-column">
-                            {moment(Number(item.timestamp) * 1000).format(
-                              "MMMM D YYYY h:mm"
-                            )}
-                          </span>
-                          <span className="table-row-column">
-                            {calculatePrice(item.price)}&nbsp;ETH
-                          </span>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
+              {cat.provenance?.offerPrices &&
+                cat.provenance?.offerPrices.length !== 0 && (
+                  <div className="adoption__item">
+                    <h3>Historical Offer Prices</h3>
+                    <ul className="adoption__item_table">
+                      {/* @ts-ignore */}
+                      {cat.provenance?.offerPrices
+                        .sort(
+                          (a, b) =>
+                            //@ts-ignore
+                            new Date(Number(a.timestamp) * 100) -
+                            //@ts-ignore
+                            new Date(Number(b.timestamp) * 100)
+                        )
+                        .map((item) => (
+                          <li className="table-row" key={item.timestamp}>
+                            <span className="table-row-column">
+                              {moment(Number(item.timestamp) * 1000).format(
+                                "MMMM D YYYY h:mm"
+                              )}
+                            </span>
+                            <span className="table-row-column">
+                              {calculatePrice(item.price)}&nbsp;ETH
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+              {cat.provenance?.requestPrices &&
+                cat.provenance?.requestPrices.length !== 0 && (
+                  <div className="adoption__item">
+                    <h3>Historical Request Prices</h3>
+                    <ul className="adoption__item_table">
+                      {/* @ts-ignore */}
+                      {cat.provenance?.requestPrices
+                        .sort(
+                          (a, b) =>
+                            //@ts-ignore
+                            new Date(Number(a.timestamp) * 100) -
+                            //@ts-ignore
+                            new Date(Number(b.timestamp) * 100)
+                        )
+                        .map((item) => (
+                          <li className="table-row" key={item.timestamp}>
+                            <span className="table-row-column">
+                              {moment(Number(item.timestamp) * 1000).format(
+                                "MMMM D YYYY h:mm"
+                              )}
+                            </span>
+                            <span className="table-row-column">
+                              {calculatePrice(item.price)}&nbsp;ETH
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
             </div>
           )}
         </div>
         <div className="item adoption">
           {cat && (
             <div
-              className={`adoption ${cat.activeAdoptionOffer && "offer"} ${
-                cat.activeAdoptionRequest && "request"
+              className={`adoption ${cat.activeOffer && "offer"} ${
+                cat.activeRequest && "request"
               }`}
             >
-              {cat.activeAdoptionOffer?.toAddress.toLowerCase() == WRAPPER && (
+              {cat.activeOffer?.to.toLowerCase() == WRAPPER && (
                 <div className="adoption__item">
                   <h3>Wrapped</h3>
                   <p>Too bad...</p>
                 </div>
               )}
-              {cat.activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER &&
-                cat.activeAdoptionOffer && (
-                  <div className="adoption__item">
-                    <h3>Offer</h3>
-                    <p>
-                      Owner of this cat is offering &nbsp;
-                      {cat.activeAdoptionOffer.toAddress !=
-                      ethers.constants.AddressZero ? (
-                        <a
-                          target="blank"
-                          rel="noreferrer"
-                          href={`https://etherscan.io/address/${cat.activeAdoptionOffer.toAddress}`}
-                        >
-                          {cat.activeAdoptionOffer.toAddress}
-                        </a>
-                      ) : (
-                        "everyone"
-                      )}
-                      , to buy it from them for{" "}
-                      {calculatePrice(cat.activeAdoptionOffer.price)} ETH
-                    </p>
-                  </div>
-                )}
-              {cat.activeAdoptionRequest && (
+              {cat.activeOffer?.to.toLowerCase() != WRAPPER && cat.activeOffer && (
+                <div className="adoption__item">
+                  <h3>Offer</h3>
+                  <p>
+                    Owner of this cat is offering &nbsp;
+                    {cat.activeOffer.to != ethers.constants.AddressZero ? (
+                      <a
+                        target="blank"
+                        rel="noreferrer"
+                        href={`https://etherscan.io/address/${cat.activeOffer.to}`}
+                      >
+                        {cat.activeOffer.to}
+                      </a>
+                    ) : (
+                      "everyone"
+                    )}
+                    , to buy it from them for{" "}
+                    {calculatePrice(cat.activeOffer.price)} ETH
+                  </p>
+                </div>
+              )}
+              {cat.activeRequest && (
                 <div className="adoption__item">
                   <h3>Request</h3>
                   <p>
                     <a
                       target="blank"
                       rel="noreferrer"
-                      href={`https://etherscan.io/address/${cat.activeAdoptionRequest.from}`}
+                      href={`https://etherscan.io/address/${cat.activeRequest.from}`}
                     >
-                      {cat.activeAdoptionRequest.from}
+                      {cat.activeRequest.from}
                     </a>{" "}
                     likes this cat, and they want to buy it for&nbsp;
-                    {calculatePrice(cat.activeAdoptionRequest.price)} ETH
-                    {cat.activeAdoptionOffer?.toAddress.toLowerCase() ==
-                      WRAPPER && "... shame it is wrapped :("}
+                    {calculatePrice(cat.activeRequest.price)} ETH
+                    {cat.activeOffer?.to.toLowerCase() == WRAPPER &&
+                      "... shame it is wrapped :("}
                   </p>
                 </div>
               )}
