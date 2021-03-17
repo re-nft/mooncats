@@ -117,3 +117,16 @@ export const queryAllCats = (first: number, offset: number): string => {
       }
   }`;
 };
+
+export const queryAllRequests = (): string => {
+  return `{
+    requestPrices(where: {active_in: [true]}) {
+      id
+      price
+      from
+      timestamp
+      filled
+      active
+    }
+  }`;
+};
