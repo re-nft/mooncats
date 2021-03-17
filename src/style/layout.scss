@@ -190,7 +190,7 @@
 
 .content-wrapper {
   position: relative;
-  max-width: 1200px;
+  max-width: 1320px;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -307,9 +307,9 @@
 
 .nft {
   position: relative;
-  width: 320px;
+  width: 280px;
   display: flex;
-  margin: 0 32px 48px;
+  margin: 0 20px 48px;
   color: #fff;
   font-size: 21px;
   flex-direction: column;
@@ -638,4 +638,9 @@
 .pseudo-link {
   cursor: pointer;
   z-index: 2;
+}
+
+.content.center {
+  justify-content: center;
+  align-items: center;
 }

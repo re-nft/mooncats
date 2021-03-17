@@ -9,6 +9,7 @@ import Layout from "./layout";
 import MyCats from "../cat/my-cats";
 import AllCats from "../cat/all-cats";
 import ShowCatById from "../cat/show-cat-by-id";
+import OfferedCats from "../cat/offered-cats";
 import { TransactionNotifier } from "../ui/transaction-notifier";
 
 const OFFSET_TOP = 180;
@@ -51,6 +52,16 @@ const App: React.FC = () => {
             </NavLink>
             <NavLink
               className="menu__item"
+              to="/offered"
+              isActive={(_, location) => {
+                if (location.pathname === "/offered") return true;
+                return false;
+              }}
+            >
+              Offered
+            </NavLink>
+            <NavLink
+              className="menu__item"
               to="/my-cats"
               isActive={(_, location) => {
                 if (location.pathname === "/my-cats") return true;
@@ -69,6 +80,9 @@ const App: React.FC = () => {
           <Switch>
             <Route exact path="/">
               <AllCats />
+            </Route>
+            <Route exact path="/offered">
+              <OfferedCats />
             </Route>
             <Route exact path="/my-cats">
               <MyCats />

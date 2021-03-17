@@ -6,14 +6,14 @@ import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
 import Modal from "../ui/modal";
 import { ethers } from "ethers";
+import Loader from "../ui/loader";
 
 export const MyCats: React.FC = () => {
-  const { usersMoonCats, catInfo } = useContext(GraphContext);
+  const { usersMoonCats, catInfo, isDataLoading } = useContext(GraphContext);
   const [currentCat, setCurrentCat] = useState<Cat>();
   const [_salePrice, _setSalePrice] = useState<string>();
   const [isOpenSaleModal, setOpenSaleModal] = useState<boolean>(false);
   const [cats, setCats] = useState<Cat[]>([]);
-  const [isCatLoaded, setIsCatLoaded] = useState<boolean>(false);
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
@@ -67,93 +67,54 @@ export const MyCats: React.FC = () => {
     window.setTimeout(() => setIsCopiedSuccessfully(false), 3000);
   }, []);
 
-  const onClick = useCallback(() => {
-    setCats(usersMoonCats);
-    setIsCatLoaded(true);
-  }, [setCats, usersMoonCats]);
-
   useEffect(() => {
     setCats(usersMoonCats);
   }, [usersMoonCats]);
 
-  const inMyWallet = cats.filter(({ inWallet }) => inWallet);
-  const onTheMoon = cats.filter(({ inWallet }) => !inWallet);
+  if (!isDataLoading) {
+    return (
+      <div className="content center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="content">
-      {!isCatLoaded && (
-        <div className="content-center">
-          <button className="nft__button" onClick={onClick}>
-            Show me my cats
-          </button>
-        </div>
-      )}
-      {isCatLoaded && cats.length === 0 && (
-        <div className="no-cats">No cats here...</div>
-      )}
-      {isCatLoaded && inMyWallet.length !== 0 && (
-        <>
-          <h2 className="content-header">In My Wallet</h2>
-          <div className="content__row content__items">
-            {inMyWallet.map((cat) => (
-              <CatItem
-                key={cat.id}
-                cat={cat}
-                catInfo={catInfo && catInfo[cat.id]}
-                onClick={onCopyToClipboard}
-              >
-                <div className="nft__control">
-                  {!cat.activeAdoptionOffer && (
-                    <button
-                      className="nft__button"
-                      onClick={() => handleModalOpen(cat)}
-                    >
-                      Sell
-                    </button>
-                  )}
-                  {cat.activeAdoptionOffer && (
-                    <button
-                      className="nft__button"
-                      onClick={() => handleOnCancelSubmit(cat)}
-                    >
-                      Cancel Sell
-                    </button>
-                  )}
-                  {cat.activeAdoptionRequest && (
-                    <button className="nft__button">Pending Bid</button>
-                  )}
-                </div>
-              </CatItem>
-            ))}
-          </div>
-        </>
-      )}
-      {isCatLoaded && onTheMoon.length !== 0 && (
-        <>
-          <h2 className="content-header">On The Moon</h2>
-          <div className="content__row content__items">
-            {onTheMoon.map((cat) => (
-              <CatItem
-                key={cat.id}
-                cat={cat}
-                catInfo={catInfo && catInfo[cat.id]}
-                onClick={onCopyToClipboard}
-              >
-                <div className="nft__control">
+      {cats.length === 0 && <div className="no-cats">No cats here...</div>}
+      {cats.length !== 0 && (
+        <div className="content__row content__items">
+          {cats.map((cat) => (
+            <CatItem
+              key={cat.id}
+              cat={cat}
+              catInfo={catInfo && catInfo[cat.id]}
+              onClick={onCopyToClipboard}
+            >
+              <div className="nft__control">
+                {!cat.activeAdoptionOffer && (
                   <button
                     className="nft__button"
                     onClick={() => handleModalOpen(cat)}
                   >
                     Sell
                   </button>
-                  {cat.activeAdoptionRequest && (
-                    <button className="nft__button">Accept request</button>
-                  )}
-                </div>
-              </CatItem>
-            ))}
-          </div>
-        </>
+                )}
+                {cat.activeAdoptionOffer && (
+                  <button
+                    className="nft__button"
+                    onClick={() => handleOnCancelSubmit(cat)}
+                  >
+                    Cancel Sell
+                  </button>
+                )}
+                {cat.activeAdoptionRequest && (
+                  <button className="nft__button">Pending Bid</button>
+                )}
+              </div>
+            </CatItem>
+          ))}
+        </div>
       )}
       {isCopiedSuccessfully && <CatNotifer />}
       <Modal open={isOpenSaleModal} handleClose={handleModalClose}>

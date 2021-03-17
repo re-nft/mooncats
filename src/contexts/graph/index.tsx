@@ -13,6 +13,7 @@ const ENDPOINT_MOONCAT_PROD =
 type GraphContextType = {
   usersMoonCats: Cat[];
   allMoonCats: Cat[];
+  isDataLoading: boolean;
   catInfo: Record<string, CatInfo>;
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
@@ -22,6 +23,7 @@ const DefaultGraphContext: GraphContextType = {
   usersMoonCats: [],
   allMoonCats: [],
   catInfo: {},
+  isDataLoading: false,
   // @ts-ignore
   fetchAllMoonCats: () => {
     return [];
@@ -43,6 +45,7 @@ const DefaultGraphContext: GraphContextType = {
 const GraphContext = createContext<GraphContextType>(DefaultGraphContext);
 
 export const GraphProvider: React.FC = ({ children }) => {
+  const [isDataLoading, setDataLoading] = useState<boolean>(Boolean);
   const [currentAddress] = useContext(CurrentAddressContext);
   const [usersMoonCats, setUsersMoonCats] = useState<Cat[]>([]);
   const [allMoonCats, _] = useState<Cat[]>([]);
@@ -107,8 +110,9 @@ export const GraphProvider: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchMyMoonCats();
-    fetchRarityData();
+    Promise.all([fetchMyMoonCats(), fetchRarityData()]).then(() => {
+      setDataLoading(true);
+    });
     /* eslint-disable-next-line */
   }, []);
 
@@ -118,6 +122,7 @@ export const GraphProvider: React.FC = ({ children }) => {
         usersMoonCats,
         allMoonCats,
         catInfo,
+        isDataLoading,
         fetchAllMoonCats,
         fetchCatById,
       }}

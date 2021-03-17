@@ -4,18 +4,16 @@ import { Cat } from "../../contexts/graph/types";
 import MooncatRescueContext from "../../contexts/mooncats/index";
 import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
-import { calculatePrice } from "../../utils";
+import { calculatePrice, WRAPPER } from "../../utils";
 import Modal from "../ui/modal";
 import Loader from "../ui/loader";
 
-enum WrappedFilters {
-  ALL,
-  WRAPPED,
-}
+const TAKE_COUNTER = 950;
+const offeredFilter = (cat: Cat) =>
+  cat.activeAdoptionOffer &&
+  cat.activeAdoptionOffer?.toAddress.toLowerCase() != WRAPPER;
 
-const TAKE_COUNTER = 120;
-
-export const AllCats: React.FC = () => {
+export const OfferedCats: React.FC = () => {
   const { fetchAllMoonCats, catInfo, isDataLoading } = useContext(GraphContext);
   const { acceptOffer } = useContext(MooncatRescueContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,7 +26,6 @@ export const AllCats: React.FC = () => {
   );
   const [cats, setCats] = useState<Cat[]>([]);
   const [skipCount, setSkipCount] = useState<number>(0);
-  const [show, setShow] = useState<WrappedFilters>(WrappedFilters.ALL);
 
   const handleModalOpen = useCallback((cat: Cat) => {
     setError(undefined);
@@ -48,12 +45,6 @@ export const AllCats: React.FC = () => {
     setIsCopiedSuccessfully(true);
     window.setTimeout(() => setIsCopiedSuccessfully(false), 3000);
   }, []);
-
-  const onShow = useCallback(() => {
-    setShow(
-      show === WrappedFilters.ALL ? WrappedFilters.WRAPPED : WrappedFilters.ALL
-    );
-  }, [setShow, show]);
 
   const handleOnPriceChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +72,8 @@ export const AllCats: React.FC = () => {
     setIsLoading(true);
     fetchAllMoonCats(TAKE_COUNTER, skip).then((items: Cat[] | undefined) => {
       if (items) {
-        setCats((prev) => prev.concat(...items));
+        const fItems = items.filter(offeredFilter);
+        setCats((prev) => prev.concat(...fItems));
         setSkipCount(skip);
         setIsLoading(false);
       }
@@ -91,15 +83,13 @@ export const AllCats: React.FC = () => {
   useEffect(() => {
     fetchAllMoonCats(TAKE_COUNTER, 0).then((items: Cat[] | undefined) => {
       if (items) {
-        setCats(items);
+        const fItems = items.filter(offeredFilter);
+        setCats(fItems);
         setIsLoading(false);
       }
     });
     /* eslint-disable-next-line */
   }, []);
-
-  const toggleShowValue = show === WrappedFilters.ALL;
-  const showTitle = show === WrappedFilters.ALL ? "Original" : "Wrapped";
 
   if (!isDataLoading) {
     return (
@@ -111,19 +101,6 @@ export const AllCats: React.FC = () => {
 
   return (
     <div className="content">
-      <div className="content__row content__navigation">
-        <div className="switch">
-          <div className="switch__control" onClick={onShow}>
-            <div
-              className={`toggle ${!toggleShowValue ? "toggle__active" : ""}`}
-            >
-              <div className="toggle__pin"></div>
-            </div>
-          </div>
-          <div style={{ width: "16px", position: "relative" }}></div>
-          <div className="switch__title">{showTitle}</div>
-        </div>
-      </div>
       <div className="content__row content__items">
         {cats.map((cat) => (
           <CatItem
@@ -174,4 +151,4 @@ export const AllCats: React.FC = () => {
   );
 };
 
-export default React.memo(AllCats);
+export default React.memo(OfferedCats);
