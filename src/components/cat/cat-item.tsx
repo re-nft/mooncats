@@ -67,15 +67,28 @@ const CatItem: React.FC<{
           onClick={onClickHandler}
           title="Click to Copy Cat ID"
         >
-          {activeOffer?.active && activeOffer?.price && (
+          {activeOffer?.price && (
             <div className="nft__meta_row">
               <div className="nft__meta_title">
-                <b style={{ fontSize: "24px" }}>Price</b>
+                <b style={{ fontSize: "24px" }}>Sell Price</b>
               </div>
               <div className="nft__meta_dot"></div>
               <div className="nft__meta_value">
                 <b style={{ fontSize: "24px" }}>
                   {calculatePrice(activeOffer.price)}&nbsp;ETH
+                </b>
+              </div>
+            </div>
+          )}
+          {activeRequest?.price && (
+            <div className="nft__meta_row">
+              <div className="nft__meta_title">
+                <b style={{ fontSize: "24px" }}>Best Buy Price</b>
+              </div>
+              <div className="nft__meta_dot"></div>
+              <div className="nft__meta_value">
+                <b style={{ fontSize: "24px" }}>
+                  {calculatePrice(activeRequest.price)}&nbsp;ETH
                 </b>
               </div>
             </div>
@@ -199,13 +212,13 @@ const CatItem: React.FC<{
             activeRequest && "request"
           }`}
         >
-          {activeOffer?.to.toLowerCase() == WRAPPER && (
+          {cat.isWrapped && (
             <div className="adoption__item">
               <h3>Wrapped</h3>
               <p>Too bad...</p>
             </div>
           )}
-          {activeOffer?.to.toLowerCase() != WRAPPER && activeOffer && (
+          {cat.isWrapped && activeOffer && (
             <div className="adoption__item">
               <h3>Offer</h3>
               <p>
