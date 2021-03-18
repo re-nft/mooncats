@@ -537,6 +537,12 @@
         2px 2px 0 #8349be, 1px 1px 0 #8349be;
     }
 
+    &__active {
+      background: #fc9706;
+      box-shadow: 5px 5px 0 #f58901, 4px 4px 0 #f58901, 3px 3px 0 #f58901,
+        2px 2px 0 #f58901, 1px 1px 0 #f58901;
+    }
+
     &:before {
       content: "";
       display: block;
@@ -643,4 +649,15 @@
 .content.center {
   justify-content: center;
   align-items: center;
+}
+
+.sort__control {
+  display: flex;
+  align-items: center;
+}
+
+.sort__title {
+  font-size: 22px;
+  margin-right: 18px;
+  color: #fff;
 }

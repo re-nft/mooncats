@@ -7,33 +7,78 @@ import CatItem from "./cat-item";
 import { calculatePrice, WRAPPER } from "../../utils";
 import Modal from "../ui/modal";
 import Loader from "../ui/loader";
-import { ethers } from "ethers";
 
-const TAKE_COUNTER = 150;
-const offeredFilter = (cat: AdoptionOffer) =>
-  cat.to.toLowerCase() == ethers.constants.AddressZero;
+enum OffereSortType {
+  HIGH_PRICE = "HIGH_PRICE",
+  CHEAPEST = "CHEAPEST",
+  RECENTLY_LISTED = "RECENTLY_LISTED",
+  OLDEST = "OLDEST",
+}
+
+const sortTypes: Record<OffereSortType, string> = {
+  [OffereSortType.HIGH_PRICE]: "HIGH PRICE",
+  [OffereSortType.CHEAPEST]: "CHEAPEST",
+  [OffereSortType.RECENTLY_LISTED]: "RECENTLY LISTED",
+  [OffereSortType.OLDEST]: "OLDEST",
+};
+
+const sortFn: Record<
+  OffereSortType,
+  (offerA: AdoptionOffer, offerB: AdoptionOffer) => number
+> = {
+  [OffereSortType.HIGH_PRICE]: (
+    offerA: AdoptionOffer,
+    offerB: AdoptionOffer
+  ) => {
+    // @ts-ignore
+    return offerB.price - offerA.price;
+  },
+  [OffereSortType.CHEAPEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
+    // @ts-ignore
+    return offerA.price - offerB.price;
+  },
+  [OffereSortType.RECENTLY_LISTED]: (
+    offerA: AdoptionOffer,
+    offerB: AdoptionOffer
+  ) => {
+    // @ts-ignore
+    return (
+      new Date(Number(offerB.timestamp) * 100) -
+      new Date(Number(offerA.timestamp) * 100)
+    );
+  },
+  [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
+    // @ts-ignore
+    return (
+      new Date(Number(offerA.timestamp) * 100) -
+      new Date(Number(offerB.timestamp) * 100)
+    );
+  },
+};
 
 export const OfferedCats: React.FC = () => {
-  const { fetchAllOffers, catInfo, isDataLoading } = useContext(GraphContext);
+  const { allOffers, catInfo, isDataLoading } = useContext(GraphContext);
   const { acceptOffer } = useContext(MooncatRescueContext);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [currentOffer, setCurrentOffer] = useState<AdoptionOffer>();
   const [error, setError] = useState<string>();
-  const [currentPrice, setCurrentPrice] = useState<string>();
   const [isOpenModal, setOpenModal] = useState<boolean>(false);
+  const [currentSortType, setCurrentSortType] = useState<OffereSortType>(
+    OffereSortType.RECENTLY_LISTED
+  );
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
-  const [offers, setOffers] = useState<AdoptionOffer[]>([]);
-  const [skipCount, setSkipCount] = useState<number>(0);
 
+  const handleSort = useCallback(
+    (sortType: OffereSortType) => setCurrentSortType(sortType),
+    []
+  );
+  const handleModalClose = useCallback(() => setOpenModal(false), []);
   const handleModalOpen = useCallback((offer: AdoptionOffer) => {
     setError(undefined);
     setOpenModal(true);
     setCurrentOffer(offer);
   }, []);
-
-  const handleModalClose = useCallback(() => setOpenModal(false), []);
 
   const onCopyToClipboard = useCallback((offer: Cat) => {
     const textField = document.createElement("textarea");
@@ -45,14 +90,6 @@ export const OfferedCats: React.FC = () => {
     setIsCopiedSuccessfully(true);
     window.setTimeout(() => setIsCopiedSuccessfully(false), 3000);
   }, []);
-
-  const handleOnPriceChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      const value = evt.target.value;
-      setCurrentPrice(value);
-    },
-    [setCurrentPrice]
-  );
 
   const handleBuyNow = useCallback(async () => {
     if (currentOffer) {
@@ -67,36 +104,6 @@ export const OfferedCats: React.FC = () => {
     }
   }, [currentOffer, handleModalClose, acceptOffer]);
 
-  const loadMore = useCallback(() => {
-    const skip = skipCount + TAKE_COUNTER;
-    const last = window.pageYOffset;
-    setIsLoading(true);
-    fetchAllOffers(TAKE_COUNTER, skip).then(
-      (items: AdoptionOffer[] | undefined) => {
-        if (items) {
-          const fItems = items.filter(offeredFilter);
-          setOffers((prev) => prev.concat(...fItems));
-          setSkipCount(skip);
-          setIsLoading(false);
-          window.scrollTo(0, last);
-        }
-      }
-    );
-  }, [skipCount, fetchAllOffers]);
-
-  useEffect(() => {
-    fetchAllOffers(TAKE_COUNTER, 0).then(
-      (items: AdoptionOffer[] | undefined) => {
-        if (items) {
-          const fItems = items.filter(offeredFilter);
-          setOffers(fItems);
-          setIsLoading(false);
-        }
-      }
-    );
-    /* eslint-disable-next-line */
-  }, []);
-
   if (!isDataLoading) {
     return (
       <div className="content center">
@@ -104,59 +111,64 @@ export const OfferedCats: React.FC = () => {
       </div>
     );
   }
-
+  const sortedOffer = allOffers.slice(0).sort(sortFn[currentSortType]);
   return (
     <div className="content">
-      <div className="content__row content__items">
-        {offers
-          .sort(
-            (a, b) =>
-              //@ts-ignore
-              new Date(Number(a.timestamp) * 100) -
-              //@ts-ignore
-              new Date(Number(b.timestamp) * 100)
-          )
-          .map((offer) => {
-            const catId = offer.id.split("::")[0];
-            return (
-              <CatItem
-                key={offer.id}
-                cat={{
-                  isWrapped: false,
-                  rescueTimestamp: offer.catRescueTimestamp,
-                  id: catId,
-                  activeOffer: offer,
-                }}
-                catInfo={catInfo && catInfo[catId]}
-                hasRescuerIdx={true}
-                onClick={onCopyToClipboard}
+      <div className="content__row content__navigation">
+        <div className="sort__control">
+          <div className="sort__title">Sort by:</div>
+          <div className="sort__buttons">
+            {Object.entries(sortTypes).map(([type, title]) => (
+              <button
+                key={type}
+                // @ts-ignore
+                className={`nft__button ${
+                  currentSortType === type && "nft__button__active"
+                }`}
+                // @ts-ignore
+                onClick={() => handleSort(type)}
               >
-                <div className="nft__control">
-                  <button
-                    className="nft__button"
-                    onClick={() => handleModalOpen(offer)}
-                  >
-                    Buy now
-                  </button>
-                </div>
-              </CatItem>
-            );
-          })}
-      </div>
-      {!isLoading && (
-        <div className="load-more">
-          <button className="nft__button" onClick={loadMore}>
-            Load more
-          </button>
+                {title}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
+      <div className="content__row content__items">
+        {sortedOffer.map((offer, index) => {
+          const catId = offer.id.split("::")[0];
+          return (
+            <CatItem
+              key={offer.id}
+              cat={{
+                isWrapped: false,
+                rescueTimestamp: offer.catRescueTimestamp,
+                id: catId,
+                activeOffer: offer,
+              }}
+              catInfo={catInfo && catInfo[catId]}
+              hasRescuerIdx={true}
+              onClick={onCopyToClipboard}
+            >
+              <div className="nft__control">
+                <button
+                  className="nft__button"
+                  onClick={() => handleModalOpen(offer)}
+                >
+                  Buy now
+                </button>
+              </div>
+            </CatItem>
+          );
+        })}
+      </div>
       {isCopiedSuccessfully && <CatNotifer />}
       <Modal open={isOpenModal} handleClose={handleModalClose}>
         <div className="inline-form">
           <input
             className="cat-input"
+            disabled
             value={`${currentOffer && calculatePrice(currentOffer.price)} ETH`}
-            onChange={handleOnPriceChange}
           />
           <button className="nft__button" onClick={handleBuyNow}>
             BUY NOW
