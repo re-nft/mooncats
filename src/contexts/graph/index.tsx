@@ -14,7 +14,7 @@ import {
 import { Cat, CatInfo, AdoptionRequest, AdoptionOffer } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
-  "https://api.thegraph.com/subgraphs/id/QmY3T4jdYXfCxUu1KxE7ePezKYuEWAesxivjDmHTaJCkPK";
+  "https://api.thegraph.com/subgraphs/id/QmNTtZFaRTiqX3ZLuE86crx75nAYPydMsTyee95SUMyE9J";
 
 type GraphContextType = {
   usersMoonCats: Cat[];
@@ -140,7 +140,6 @@ export const GraphProvider: React.FC = ({ children }) => {
 
   const fetchRarityData = async () => {
     const response = await fetch("./data.json");
-    console.log("Pulled Rarity Cat");
     const data = await response.text();
     const resolvedData = JSON.parse(data).reduce(
       (memo: Record<string, CatInfo>, item: CatInfo) => {

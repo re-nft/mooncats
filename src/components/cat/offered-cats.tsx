@@ -76,7 +76,6 @@ export const OfferedCats: React.FC = () => {
       (items: AdoptionOffer[] | undefined) => {
         if (items) {
           const fItems = items.filter(offeredFilter);
-          console.log("fItems", fItems);
           setOffers((prev) => prev.concat(...fItems));
           setSkipCount(skip);
           setIsLoading(false);
@@ -91,7 +90,6 @@ export const OfferedCats: React.FC = () => {
       (items: AdoptionOffer[] | undefined) => {
         if (items) {
           const fItems = items.filter(offeredFilter);
-          console.log("fItems", fItems);
           setOffers(fItems);
           setIsLoading(false);
         }
@@ -108,14 +106,11 @@ export const OfferedCats: React.FC = () => {
     );
   }
 
-  console.log("currentOffer", currentOffer);
-
   return (
     <div className="content">
       <div className="content__row content__items">
         {offers.map((offer) => {
           const catId = offer.id.split("::")[0];
-          // console.log("offer", offer);
           return (
             <CatItem
               key={offer.id}
