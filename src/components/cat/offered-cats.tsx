@@ -41,16 +41,18 @@ const sortFn: Record<
     offerA: AdoptionOffer,
     offerB: AdoptionOffer
   ) => {
-    // @ts-ignore
     return (
+      // @ts-ignore
       new Date(Number(offerB.timestamp) * 100) -
+      // @ts-ignore
       new Date(Number(offerA.timestamp) * 100)
     );
   },
   [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
-    // @ts-ignore
     return (
+      // @ts-ignore
       new Date(Number(offerA.timestamp) * 100) -
+      // @ts-ignore
       new Date(Number(offerB.timestamp) * 100)
     );
   },
