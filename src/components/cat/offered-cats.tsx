@@ -1,42 +1,44 @@
 import React, { useState, useCallback, useContext, useEffect } from "react";
 import GraphContext from "../../contexts/graph/index";
-import { Cat } from "../../contexts/graph/types";
+import { Cat, AdoptionOffer } from "../../contexts/graph/types";
 import MooncatRescueContext from "../../contexts/mooncats/index";
 import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
 import { calculatePrice, WRAPPER } from "../../utils";
 import Modal from "../ui/modal";
 import Loader from "../ui/loader";
+import { ethers } from "ethers";
 
-const TAKE_COUNTER = 950;
-const offeredFilter = (cat: Cat) =>
-  cat.activeOffer && cat.activeOffer?.to.toLowerCase() != WRAPPER;
+const TAKE_COUNTER = 150;
+const offeredFilter = (cat: AdoptionOffer) =>
+  cat.to.toLowerCase() != WRAPPER ||
+  cat.to.toLowerCase() == ethers.constants.AddressZero;
 
 export const OfferedCats: React.FC = () => {
-  const { fetchAllMoonCats, catInfo, isDataLoading } = useContext(GraphContext);
+  const { fetchAllOffers, catInfo, isDataLoading } = useContext(GraphContext);
   const { acceptOffer } = useContext(MooncatRescueContext);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [currentCat, setCurrentCat] = useState<Cat>();
+  const [currentOffer, setCurrentOffer] = useState<AdoptionOffer>();
   const [error, setError] = useState<string>();
   const [currentPrice, setCurrentPrice] = useState<string>();
   const [isOpenModal, setOpenModal] = useState<boolean>(false);
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
-  const [cats, setCats] = useState<Cat[]>([]);
+  const [offers, setOffers] = useState<AdoptionOffer[]>([]);
   const [skipCount, setSkipCount] = useState<number>(0);
 
-  const handleModalOpen = useCallback((cat: Cat) => {
+  const handleModalOpen = useCallback((offer: AdoptionOffer) => {
     setError(undefined);
     setOpenModal(true);
-    setCurrentCat(cat);
+    setCurrentOffer(offer);
   }, []);
 
   const handleModalClose = useCallback(() => setOpenModal(false), []);
 
-  const onCopyToClipboard = useCallback((cat: Cat) => {
+  const onCopyToClipboard = useCallback((offer: Cat) => {
     const textField = document.createElement("textarea");
-    textField.innerText = cat.id;
+    textField.innerText = offer.id;
     document.body.appendChild(textField);
     textField.select();
     document.execCommand("copy");
@@ -54,41 +56,47 @@ export const OfferedCats: React.FC = () => {
   );
 
   const handleBuyNow = useCallback(async () => {
-    if (currentCat && currentCat.activeOffer) {
+    if (currentOffer) {
       try {
-        await acceptOffer(currentCat.id, currentCat.activeOffer.price);
+        await acceptOffer(currentOffer.id.split("::")[0], currentOffer.price);
       } catch (e) {
         console.warn(e);
         setError(e?.message);
       }
-      setCurrentCat(undefined);
+      setCurrentOffer(undefined);
       handleModalClose();
     }
-  }, [currentCat, handleModalClose, acceptOffer]);
+  }, [currentOffer, handleModalClose, acceptOffer]);
 
   const loadMore = useCallback(() => {
     const skip = skipCount + TAKE_COUNTER;
     const last = window.pageYOffset;
     setIsLoading(true);
-    fetchAllMoonCats(TAKE_COUNTER, skip).then((items: Cat[] | undefined) => {
-      if (items) {
-        const fItems = items.filter(offeredFilter);
-        setCats((prev) => prev.concat(...fItems));
-        setSkipCount(skip);
-        setIsLoading(false);
-        window.scrollTo(0, last);
+    fetchAllOffers(TAKE_COUNTER, skip).then(
+      (items: AdoptionOffer[] | undefined) => {
+        if (items) {
+          const fItems = items.filter(offeredFilter);
+          console.log("fItems", fItems);
+          setOffers((prev) => prev.concat(...fItems));
+          setSkipCount(skip);
+          setIsLoading(false);
+          window.scrollTo(0, last);
+        }
       }
-    });
-  }, [skipCount, fetchAllMoonCats]);
+    );
+  }, [skipCount, fetchAllOffers]);
 
   useEffect(() => {
-    fetchAllMoonCats(TAKE_COUNTER, 0).then((items: Cat[] | undefined) => {
-      if (items) {
-        const fItems = items.filter(offeredFilter);
-        setCats(fItems);
-        setIsLoading(false);
+    fetchAllOffers(TAKE_COUNTER, 0).then(
+      (items: AdoptionOffer[] | undefined) => {
+        if (items) {
+          const fItems = items.filter(offeredFilter);
+          console.log("fItems", fItems);
+          setOffers(fItems);
+          setIsLoading(false);
+        }
       }
-    });
+    );
     /* eslint-disable-next-line */
   }, []);
 
@@ -100,29 +108,38 @@ export const OfferedCats: React.FC = () => {
     );
   }
 
+  console.log("currentOffer", currentOffer);
+
   return (
     <div className="content">
       <div className="content__row content__items">
-        {cats.map((cat) => (
-          <CatItem
-            key={cat.id}
-            cat={cat}
-            catInfo={catInfo && catInfo[cat.id]}
-            hasRescuerIdx={true}
-            onClick={onCopyToClipboard}
-          >
-            <div className="nft__control">
-              {cat.activeOffer && (
+        {offers.map((offer) => {
+          const catId = offer.id.split("::")[0];
+          // console.log("offer", offer);
+          return (
+            <CatItem
+              key={offer.id}
+              cat={{
+                isWrapped: false,
+                rescueTimestamp: offer.catRescueTimestamp,
+                id: catId,
+                activeOffer: offer,
+              }}
+              catInfo={catInfo && catInfo[catId]}
+              hasRescuerIdx={true}
+              onClick={onCopyToClipboard}
+            >
+              <div className="nft__control">
                 <button
                   className="nft__button"
-                  onClick={() => handleModalOpen(cat)}
+                  onClick={() => handleModalOpen(offer)}
                 >
                   Buy now
                 </button>
-              )}
-            </div>
-          </CatItem>
-        ))}
+              </div>
+            </CatItem>
+          );
+        })}
       </div>
       {!isLoading && (
         <div className="load-more">
@@ -136,9 +153,7 @@ export const OfferedCats: React.FC = () => {
         <div className="inline-form">
           <input
             className="cat-input"
-            value={`${
-              currentCat && calculatePrice(currentCat.activeOffer?.price || "")
-            } ETH`}
+            value={`${currentOffer && calculatePrice(currentOffer.price)} ETH`}
             onChange={handleOnPriceChange}
           />
           <button className="nft__button" onClick={handleBuyNow}>

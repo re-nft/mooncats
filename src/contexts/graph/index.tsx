@@ -9,11 +9,12 @@ import {
   queryAllCats,
   queryCatById,
   queryAllRequests,
+  queryAllOffers,
 } from "./queries";
-import { Cat, CatInfo, AdoptionRequest } from "./types";
+import { Cat, CatInfo, AdoptionRequest, AdoptionOffer } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
-  "https://api.thegraph.com/subgraphs/id/QmcCUrS1bc6ME13hUYJMYD63YaeK2GgQAyUwB3L8oeWuHR";
+  "https://api.thegraph.com/subgraphs/name/rentft/moon-cat-rescue";
 
 type GraphContextType = {
   usersMoonCats: Cat[];
@@ -23,6 +24,10 @@ type GraphContextType = {
   catInfo: Record<string, CatInfo>;
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
+  fetchAllOffers(
+    take: number,
+    skip: number
+  ): Promise<AdoptionOffer[] | undefined>;
 };
 
 const DefaultGraphContext: GraphContextType = {
@@ -104,6 +109,22 @@ export const GraphProvider: React.FC = ({ children }) => {
     setAllRequests(response.requestPrices ?? []);
   };
 
+  const fetchAllOffers = async (
+    take: number,
+    skip: number
+  ): Promise<AdoptionOffer[] | undefined> => {
+    if (!currentAddress) return;
+    const query = queryAllOffers(take, skip);
+    const subgraphURI = ENDPOINT_MOONCAT_PROD;
+    const response: {
+      offerPrices: AdoptionOffer[];
+    } = await timeItAsync(
+      `Pulled All Moon Cat Nfts`,
+      async () => await request(subgraphURI, query)
+    );
+    return response?.offerPrices ?? [];
+  };
+
   const fetchCatById = async (catId: string): Promise<Cat | undefined> => {
     if (!currentAddress) return;
     const query = queryCatById(catId);
@@ -150,6 +171,7 @@ export const GraphProvider: React.FC = ({ children }) => {
         catInfo,
         isDataLoading,
         fetchAllMoonCats,
+        fetchAllOffers,
         fetchCatById,
       }}
     >

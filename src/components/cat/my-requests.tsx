@@ -18,13 +18,16 @@ export const MyCatsRequests: React.FC = () => {
   );
   const { cancelRequest } = useContext(MooncatRescueContext);
 
-  const handleCancelRequest = useCallback(async (cat: Cat) => {
-    try {
-      await cancelRequest(cat.id);
-    } catch (e) {
-      console.warn(e);
-    }
-  }, []);
+  const handleCancelRequest = useCallback(
+    async (cat: Cat) => {
+      try {
+        await cancelRequest(cat.id);
+      } catch (e) {
+        console.warn(e);
+      }
+    },
+    [cancelRequest]
+  );
 
   useEffect(() => {
     if (allRequests.length !== 0) {
@@ -37,7 +40,7 @@ export const MyCatsRequests: React.FC = () => {
         setCats(cats);
       });
     }
-  }, [allRequests]);
+  }, [allRequests, currentAddress, fetchCatById]);
 
   const onCopyToClipboard = useCallback((cat: Cat) => {
     const textField = document.createElement("textarea");
