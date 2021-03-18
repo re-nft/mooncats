@@ -5,6 +5,7 @@ export type AdoptionRequest = {
   timestamp: string;
   active: boolean;
   filled: boolean;
+  rescueTimestamp: string;
 };
 
 export type AdoptionOffer = {
@@ -14,6 +15,7 @@ export type AdoptionOffer = {
   timestamp: string;
   active: boolean;
   filled: boolean;
+  rescueTimestamp: string;
 };
 
 export type Cat = {

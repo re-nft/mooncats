@@ -79,9 +79,9 @@ export const queryCatById = (catId: string): string => {
   }`;
 };
 
-export const queryAllCats = (first: number, offset: number): string => {
+export const queryAllCats = (first: number, skip: number): string => {
   return `{
-      cats(first: ${first}, skip: ${offset}) {
+      cats(first: ${first}, skip: ${skip}) {
         id
         name
         isWrapped
@@ -124,6 +124,19 @@ export const queryAllRequests = (): string => {
       id
       price
       from
+      timestamp
+      filled
+      active
+    }
+  }`;
+};
+
+export const queryAllOffers = (first: number, skip: number): string => {
+  return `{
+    offerPrices(where: {active_in: [true]}, first: ${first}, skip: ${skip}) {
+      id
+      price
+      to
       timestamp
       filled
       active
