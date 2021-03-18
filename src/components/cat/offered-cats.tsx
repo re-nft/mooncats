@@ -11,7 +11,6 @@ import { ethers } from "ethers";
 
 const TAKE_COUNTER = 150;
 const offeredFilter = (cat: AdoptionOffer) =>
-  cat.to.toLowerCase() != WRAPPER ||
   cat.to.toLowerCase() == ethers.constants.AddressZero;
 
 export const OfferedCats: React.FC = () => {
@@ -109,32 +108,40 @@ export const OfferedCats: React.FC = () => {
   return (
     <div className="content">
       <div className="content__row content__items">
-        {offers.map((offer) => {
-          const catId = offer.id.split("::")[0];
-          return (
-            <CatItem
-              key={offer.id}
-              cat={{
-                isWrapped: false,
-                rescueTimestamp: offer.catRescueTimestamp,
-                id: catId,
-                activeOffer: offer,
-              }}
-              catInfo={catInfo && catInfo[catId]}
-              hasRescuerIdx={true}
-              onClick={onCopyToClipboard}
-            >
-              <div className="nft__control">
-                <button
-                  className="nft__button"
-                  onClick={() => handleModalOpen(offer)}
-                >
-                  Buy now
-                </button>
-              </div>
-            </CatItem>
-          );
-        })}
+        {offers
+          .sort(
+            (a, b) =>
+              //@ts-ignore
+              new Date(Number(a.timestamp) * 100) -
+              //@ts-ignore
+              new Date(Number(b.timestamp) * 100)
+          )
+          .map((offer) => {
+            const catId = offer.id.split("::")[0];
+            return (
+              <CatItem
+                key={offer.id}
+                cat={{
+                  isWrapped: false,
+                  rescueTimestamp: offer.catRescueTimestamp,
+                  id: catId,
+                  activeOffer: offer,
+                }}
+                catInfo={catInfo && catInfo[catId]}
+                hasRescuerIdx={true}
+                onClick={onCopyToClipboard}
+              >
+                <div className="nft__control">
+                  <button
+                    className="nft__button"
+                    onClick={() => handleModalOpen(offer)}
+                  >
+                    Buy now
+                  </button>
+                </div>
+              </CatItem>
+            );
+          })}
       </div>
       {!isLoading && (
         <div className="load-more">
