@@ -9,6 +9,7 @@ Welcome to ReNFT's humble abode, where magix happens!
 
 - [Rent NFT](#rent-nft)
   - [Table of Contents](#table-of-contents)
+  - [Contributions](#contributions)
 
 ## Contributions
 
