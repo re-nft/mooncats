@@ -1,12 +1,15 @@
-# Rent NFT
+# MoonCat Shop
 
 For the cats
 
 Welcome to ReNFT's humble abode, where magix happens!
-
-![renft](https://user-images.githubusercontent.com/13678461/109494135-634a8800-7a85-11eb-9dd5-d07ca2865df1.png)
+![210315_reNFT_Logo_purple (1)](https://user-images.githubusercontent.com/13678461/111640139-cd885a00-87f3-11eb-89dd-4373e4de378d.png)
 
 ## Table of Contents
 
 - [Rent NFT](#rent-nft)
   - [Table of Contents](#table-of-contents)
+
+## Contributions
+
+Pop over to issues, there is plenty of work for ya', mooncat rescuer!
