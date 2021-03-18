@@ -138,6 +138,7 @@ export const queryAllOffers = (first: number, skip: number): string => {
       price
       to
       timestamp
+      catRescueTimestamp
       filled
       active
     }

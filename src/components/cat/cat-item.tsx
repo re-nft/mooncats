@@ -67,7 +67,7 @@ const CatItem: React.FC<{
           onClick={onClickHandler}
           title="Click to Copy Cat ID"
         >
-          {activeOffer && activeOffer?.to.toLowerCase() != WRAPPER && (
+          {activeOffer?.active && activeOffer?.price && (
             <div className="nft__meta_row">
               <div className="nft__meta_title">
                 <b style={{ fontSize: "24px" }}>Price</b>

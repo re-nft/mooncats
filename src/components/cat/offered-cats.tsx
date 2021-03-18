@@ -9,7 +9,7 @@ import Modal from "../ui/modal";
 import Loader from "../ui/loader";
 import { ethers } from "ethers";
 
-const TAKE_COUNTER = 950;
+const TAKE_COUNTER = 150;
 const offeredFilter = (cat: AdoptionOffer) =>
   cat.to.toLowerCase() != WRAPPER ||
   cat.to.toLowerCase() == ethers.constants.AddressZero;
@@ -108,20 +108,24 @@ export const OfferedCats: React.FC = () => {
     );
   }
 
+  console.log("currentOffer", currentOffer);
+
   return (
     <div className="content">
       <div className="content__row content__items">
         {offers.map((offer) => {
-          console.log("offer", offer);
+          const catId = offer.id.split("::")[0];
+          // console.log("offer", offer);
           return (
             <CatItem
-              key={offer.id.split("::")[0]}
+              key={offer.id}
               cat={{
                 isWrapped: false,
-                rescueTimestamp: offer.rescueTimestamp,
-                id: offer.id.split("::")[0],
+                rescueTimestamp: offer.catRescueTimestamp,
+                id: catId,
+                activeOffer: offer,
               }}
-              catInfo={catInfo && catInfo[offer.id.split("::")[0]]}
+              catInfo={catInfo && catInfo[catId]}
               hasRescuerIdx={true}
               onClick={onCopyToClipboard}
             >

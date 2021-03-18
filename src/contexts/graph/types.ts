@@ -15,7 +15,7 @@ export type AdoptionOffer = {
   timestamp: string;
   active: boolean;
   filled: boolean;
-  rescueTimestamp: string;
+  catRescueTimestamp: string;
 };
 
 export type Cat = {

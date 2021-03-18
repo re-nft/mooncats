@@ -14,7 +14,7 @@ import {
 import { Cat, CatInfo, AdoptionRequest, AdoptionOffer } from "./types";
 
 const ENDPOINT_MOONCAT_PROD =
-  "https://api.thegraph.com/subgraphs/id/QmWZKQjcXHnFktwaK5EoJyijjJDTbh193rSkYcCCbMAyYC";
+  "https://api.thegraph.com/subgraphs/name/rentft/moon-cat-rescue";
 
 type GraphContextType = {
   usersMoonCats: Cat[];
