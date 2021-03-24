@@ -12,9 +12,7 @@ import {
   queryAllOffers,
 } from "./queries";
 import { Cat, CatInfo, AdoptionRequest, AdoptionOffer } from "./types";
-
-const ENDPOINT_MOONCAT_PROD =
-  "https://api.thegraph.com/subgraphs/id/QmNTtZFaRTiqX3ZLuE86crx75nAYPydMsTyee95SUMyE9J";
+import { ENDPOINT_MOONCAT_PROD } from "../../consts";
 
 type GraphContextType = {
   usersMoonCats: Cat[];

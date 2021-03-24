@@ -7,13 +7,13 @@ import CatItem from "./cat-item";
 import { calculatePrice } from "../../utils";
 import Modal from "../ui/modal";
 import Loader from "../ui/loader";
+import { ALL_CATS_TAKE_COUNT } from "../../consts";
 
 enum WrappedFilters {
   ALL,
   WRAPPED,
 }
 
-const TAKE_COUNTER = 120;
 const isWrappedFilter = (cat: Cat) => cat.isWrapped;
 
 export const AllCats: React.FC = () => {
@@ -78,26 +78,30 @@ export const AllCats: React.FC = () => {
   }, [currentCat, handleModalClose, acceptOffer]);
 
   const loadMore = useCallback(() => {
-    const skip = skipCount + TAKE_COUNTER;
+    const skip = skipCount + ALL_CATS_TAKE_COUNT;
     const last = window.pageYOffset;
     setIsLoading(true);
-    fetchAllMoonCats(TAKE_COUNTER, skip).then((items: Cat[] | undefined) => {
-      if (items) {
-        setCats((prev) => prev.concat(...items));
-        setSkipCount(skip);
-        setIsLoading(false);
-        window.scrollTo(0, last);
+    fetchAllMoonCats(ALL_CATS_TAKE_COUNT, skip).then(
+      (items: Cat[] | undefined) => {
+        if (items) {
+          setCats((prev) => prev.concat(...items));
+          setSkipCount(skip);
+          setIsLoading(false);
+          window.scrollTo(0, last);
+        }
       }
-    });
+    );
   }, [skipCount, fetchAllMoonCats]);
 
   useEffect(() => {
-    fetchAllMoonCats(TAKE_COUNTER, 0).then((items: Cat[] | undefined) => {
-      if (items) {
-        setCats(items);
-        setIsLoading(false);
+    fetchAllMoonCats(ALL_CATS_TAKE_COUNT, 0).then(
+      (items: Cat[] | undefined) => {
+        if (items) {
+          setCats(items);
+          setIsLoading(false);
+        }
       }
-    });
+    );
     /* eslint-disable-next-line */
   }, []);
 
