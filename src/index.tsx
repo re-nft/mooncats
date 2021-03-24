@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import dotenv from "dotenv";
 
@@ -30,7 +31,9 @@ ReactDOM.render(
         <GraphProvider>
           <TransactionStateProvider>
             <ThemeProvider theme={theme}>
-              <App />
+              <Router>
+                <App />
+              </Router>
             </ThemeProvider>
           </TransactionStateProvider>
         </GraphProvider>
