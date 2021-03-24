@@ -170,8 +170,10 @@ export const GraphProvider: React.FC = ({ children }) => {
     return response?.cats[0];
   };
 
-  const fetchRarityData = async () => {
-    const response = await fetch(`${window.location.origin}/data.json`);
+  const fetchRarityData = async (acSignal: AbortSignal) => {
+    const response = await fetch(`${window.location.origin}/data.json`, {
+      signal: acSignal,
+    });
     const data = await response.text();
     const resolvedData = JSON.parse(data).reduce(
       (memo: Record<string, CatInfo>, item: CatInfo) => {
@@ -183,15 +185,19 @@ export const GraphProvider: React.FC = ({ children }) => {
   };
 
   useEffect(() => {
+    const ac = new AbortController();
     Promise.all([
       fetchMyMoonCats(),
-      fetchRarityData(),
+      fetchRarityData(ac.signal),
       fetchAllRequests(),
       fetchAllOffers(),
-    ]).then(() => {
-      setDataLoading(true);
-    });
+    ])
+      .then(() => {
+        setDataLoading(true);
+      })
+      .catch(() => setDataLoading(false));
     /* eslint-disable-next-line */
+    return () => ac.abort();
   }, []);
 
   return (
