@@ -108,14 +108,6 @@ export const AllCats: React.FC = () => {
   const toggleShowValue = show === WrappedFilters.ALL;
   const showTitle = show === WrappedFilters.ALL ? "Original" : "Wrapped";
 
-  if (!isDataLoading) {
-    return (
-      <div className="content center">
-        <Loader />
-      </div>
-    );
-  }
-
   const wrapped = cats.filter(({ isWrapped }: Cat) => isWrapped);
   const original = cats.filter(({ isWrapped }: Cat) => !isWrapped);
 

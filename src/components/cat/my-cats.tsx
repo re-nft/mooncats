@@ -71,14 +71,6 @@ export const MyCats: React.FC = () => {
     setCats(usersMoonCats);
   }, [usersMoonCats]);
 
-  if (!isDataLoading) {
-    return (
-      <div className="content center">
-        <Loader />
-      </div>
-    );
-  }
-
   return (
     <div className="content">
       {cats.length === 0 && <div className="no-cats">No cats here...</div>}

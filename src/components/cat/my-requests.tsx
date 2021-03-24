@@ -53,14 +53,6 @@ export const MyCatsRequests: React.FC = () => {
     window.setTimeout(() => setIsCopiedSuccessfully(false), 3000);
   }, []);
 
-  if (!isDataLoading) {
-    return (
-      <div className="content center">
-        <Loader />
-      </div>
-    );
-  }
-
   return (
     <div className="content">
       {cats.length === 0 && <div className="no-cats">No cats here...</div>}
