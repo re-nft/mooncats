@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { request } from "graphql-request";
 import { ethers } from "ethers";
 import { CurrentAddressContext } from "../../hardhat/SymfoniContext";
@@ -53,6 +59,9 @@ const DefaultGraphContext: GraphContextType = {
 const GraphContext = createContext<GraphContextType>(DefaultGraphContext);
 
 export const GraphProvider: React.FC = ({ children }) => {
+  const unmounted = useRef<boolean>(
+    (sessionStorage.getItem("is-app-unmounted") || false) === false
+  );
   const [isDataLoading, setDataLoading] = useState<boolean>(Boolean);
   const [currentAddress] = useContext(CurrentAddressContext);
   const [usersMoonCats, setUsersMoonCats] = useState<Cat[]>([]);
@@ -106,54 +115,54 @@ export const GraphProvider: React.FC = ({ children }) => {
     setAllRequests(response.requestPrices ?? []);
   };
 
-  const _fetchAllOffers = async (
-    take: number,
-    skip: number
-  ): Promise<AdoptionOffer[] | undefined> => {
-    if (!currentAddress) return;
-    const query = queryAllOffers(take, skip);
-    const subgraphURI = ENDPOINT_MOONCAT_PROD;
-    const response: {
-      offerPrices: AdoptionOffer[];
-    } = await timeItAsync(
-      `Pulled All Offers Cat Nfts`,
-      async () => await request(subgraphURI, query)
-    );
-    return response?.offerPrices ?? [];
-  };
+  // const _fetchAllOffers = async (
+  //   take: number,
+  //   skip: number
+  // ): Promise<AdoptionOffer[] | undefined> => {
+  //   if (!currentAddress) return;
+  //   const query = queryAllOffers(take, skip);
+  //   const subgraphURI = ENDPOINT_MOONCAT_PROD;
+  //   const response: {
+  //     offerPrices: AdoptionOffer[];
+  //   } = await timeItAsync(
+  //     `Pulled All Offers Cat Nfts`,
+  //     async () => await request(subgraphURI, query)
+  //   );
+  //   return response?.offerPrices ?? [];
+  // };
 
-  const fetchAllOffers = () => {
-    const result: AdoptionOffer[] = [];
-    const takeCount = 900;
-    let skipCount = 0;
+  // const fetchAllOffers = () => {
+  //   const result: AdoptionOffer[] = [];
+  //   const takeCount = 900;
+  //   let skipCount = 0;
 
-    // @ts-ignore
-    function getOffers(take: number, skip: number) {
-      return _fetchAllOffers(take, skip).then(
-        (items: AdoptionOffer[] | undefined) => {
-          if (items) {
-            if (items.length === 0) {
-              return result;
-            } else {
-              result.push(...items);
-              skipCount = skipCount + take;
-              return getOffers(takeCount, skipCount);
-            }
-          }
-        }
-      );
-    }
+  //   // @ts-ignore
+  //   function getOffers(take: number, skip: number) {
+  //     return _fetchAllOffers(take, skip).then(
+  //       (items: AdoptionOffer[] | undefined) => {
+  //         if (items) {
+  //           if (items.length === 0) {
+  //             return result;
+  //           } else {
+  //             result.push(...items);
+  //             skipCount = skipCount + take;
+  //             return getOffers(takeCount, skipCount);
+  //           }
+  //         }
+  //       }
+  //     );
+  //   }
 
-    getOffers(takeCount, skipCount).then((adoptionOffers: AdoptionOffer[]) => {
-      if (adoptionOffers) {
-        const offers = adoptionOffers.filter(
-          (offer: AdoptionOffer) =>
-            offer.to.toLowerCase() == ethers.constants.AddressZero
-        );
-        setAllOffers(offers);
-      }
-    });
-  };
+  //   getOffers(takeCount, skipCount).then((adoptionOffers: AdoptionOffer[]) => {
+  //     if (adoptionOffers) {
+  //       const offers = adoptionOffers.filter(
+  //         (offer: AdoptionOffer) =>
+  //           offer.to.toLowerCase() == ethers.constants.AddressZero
+  //       );
+  //       setAllOffers(offers);
+  //     }
+  //   });
+  // };
 
   const fetchCatById = async (catId: string): Promise<Cat | undefined> => {
     if (!currentAddress) return;
@@ -168,9 +177,9 @@ export const GraphProvider: React.FC = ({ children }) => {
     return response?.cats[0];
   };
 
-  const fetchRarityData = async (acSignal: AbortSignal) => {
+  const fetchRarityData = async (signal?: AbortSignal) => {
     const response = await fetch(`${window.location.origin}/data.json`, {
-      signal: acSignal,
+      signal,
     });
     const data = await response.text();
     const resolvedData = JSON.parse(data).reduce(
@@ -179,23 +188,24 @@ export const GraphProvider: React.FC = ({ children }) => {
         return memo;
       }
     );
-    setCatInfo(resolvedData);
+    !unmounted.current && setCatInfo(resolvedData);
   };
 
   useEffect(() => {
-    const ac = new AbortController();
-    Promise.all([
-      fetchMyMoonCats(),
-      fetchRarityData(ac.signal),
-      fetchAllRequests(),
-      fetchAllOffers(),
-    ])
-      .then(() => {
-        setDataLoading(true);
-      })
-      .catch(() => setDataLoading(false));
+    const fetchData = async () => {
+      sessionStorage.setItem("is-app-unmounted", "false");
+      await Promise.all([
+        fetchMyMoonCats(),
+        fetchRarityData(),
+        fetchAllRequests(),
+        // fetchAllOffers(),
+      ]);
+      setDataLoading(true);
+    };
+
+    unmounted.current && fetchData();
+    return () => sessionStorage.removeItem("is-app-unmounted");
     /* eslint-disable-next-line */
-    return () => ac.abort();
   }, []);
 
   return (

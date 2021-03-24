@@ -44,4 +44,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default React.memo(App);
