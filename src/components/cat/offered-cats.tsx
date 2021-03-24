@@ -1,12 +1,19 @@
-import React, { useState, useCallback, useContext, useEffect } from "react";
+import React, {
+  useState,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import GraphContext from "../../contexts/graph/index";
 import { Cat, AdoptionOffer } from "../../contexts/graph/types";
 import MooncatRescueContext from "../../contexts/mooncats/index";
 import CatNotifer from "./copy-notifer";
 import CatItem from "./cat-item";
-import { calculatePrice, WRAPPER } from "../../utils";
+import { calculatePrice } from "../../utils";
 import Modal from "../ui/modal";
 import Loader from "../ui/loader";
+import useOffers from "../../hooks/useOffers";
 
 enum OffereSortType {
   HIGH_PRICE = "HIGH_PRICE",
@@ -59,7 +66,9 @@ const sortFn: Record<
 };
 
 export const OfferedCats: React.FC = () => {
-  const { allOffers, catInfo, isDataLoading } = useContext(GraphContext);
+  const { catInfo } = useContext(GraphContext);
+  const yOffset = useRef<number>(window.pageYOffset);
+  const { setLastOfferId, offers, isOffersFetching } = useOffers();
   const { acceptOffer } = useContext(MooncatRescueContext);
   const [currentOffer, setCurrentOffer] = useState<AdoptionOffer>();
   const [error, setError] = useState<string>();
@@ -70,6 +79,11 @@ export const OfferedCats: React.FC = () => {
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
+
+  const handleClick = () => {
+    yOffset.current = window.pageYOffset;
+    setLastOfferId(offers[offers.length - 1].id);
+  };
 
   const handleSort = useCallback(
     (sortType: OffereSortType) => setCurrentSortType(sortType),
@@ -106,14 +120,21 @@ export const OfferedCats: React.FC = () => {
     }
   }, [currentOffer, handleModalClose, acceptOffer]);
 
-  if (!isDataLoading) {
+  useEffect(() => {
+    if (!isOffersFetching) {
+      window.scrollTo(0, yOffset.current);
+    }
+  }, [isOffersFetching]);
+
+  if (isOffersFetching) {
     return (
       <div className="content center">
         <Loader />
       </div>
     );
   }
-  const sortedOffer = allOffers.slice(0).sort(sortFn[currentSortType]);
+
+  const sortedOffer = offers.slice(0).sort(sortFn[currentSortType]);
   return (
     <div className="content">
       <div className="content__row content__navigation">
@@ -164,6 +185,13 @@ export const OfferedCats: React.FC = () => {
           );
         })}
       </div>
+      {!isOffersFetching && (
+        <div className="load-more">
+          <button className="nft__button" onClick={handleClick}>
+            Load more
+          </button>
+        </div>
+      )}
       {isCopiedSuccessfully && <CatNotifer />}
       <Modal open={isOpenModal} handleClose={handleModalClose}>
         <div className="inline-form">

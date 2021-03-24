@@ -115,55 +115,6 @@ export const GraphProvider: React.FC = ({ children }) => {
     setAllRequests(response.requestPrices ?? []);
   };
 
-  // const _fetchAllOffers = async (
-  //   take: number,
-  //   skip: number
-  // ): Promise<AdoptionOffer[] | undefined> => {
-  //   if (!currentAddress) return;
-  //   const query = queryAllOffers(take, skip);
-  //   const subgraphURI = ENDPOINT_MOONCAT_PROD;
-  //   const response: {
-  //     offerPrices: AdoptionOffer[];
-  //   } = await timeItAsync(
-  //     `Pulled All Offers Cat Nfts`,
-  //     async () => await request(subgraphURI, query)
-  //   );
-  //   return response?.offerPrices ?? [];
-  // };
-
-  // const fetchAllOffers = () => {
-  //   const result: AdoptionOffer[] = [];
-  //   const takeCount = 900;
-  //   let skipCount = 0;
-
-  //   // @ts-ignore
-  //   function getOffers(take: number, skip: number) {
-  //     return _fetchAllOffers(take, skip).then(
-  //       (items: AdoptionOffer[] | undefined) => {
-  //         if (items) {
-  //           if (items.length === 0) {
-  //             return result;
-  //           } else {
-  //             result.push(...items);
-  //             skipCount = skipCount + take;
-  //             return getOffers(takeCount, skipCount);
-  //           }
-  //         }
-  //       }
-  //     );
-  //   }
-
-  //   getOffers(takeCount, skipCount).then((adoptionOffers: AdoptionOffer[]) => {
-  //     if (adoptionOffers) {
-  //       const offers = adoptionOffers.filter(
-  //         (offer: AdoptionOffer) =>
-  //           offer.to.toLowerCase() == ethers.constants.AddressZero
-  //       );
-  //       setAllOffers(offers);
-  //     }
-  //   });
-  // };
-
   const fetchCatById = async (catId: string): Promise<Cat | undefined> => {
     if (!currentAddress) return;
     const query = queryCatById(catId);
@@ -198,7 +149,6 @@ export const GraphProvider: React.FC = ({ children }) => {
         fetchMyMoonCats(),
         fetchRarityData(),
         fetchAllRequests(),
-        // fetchAllOffers(),
       ]);
       setDataLoading(true);
     };

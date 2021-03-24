@@ -131,9 +131,9 @@ export const queryAllRequests = (): string => {
   }`;
 };
 
-export const queryAllOffers = (first: number, skip: number): string => {
+export const queryAllOffers = (first: number, lastId = ""): string => {
   return `{
-    offerPrices(where: {active_in: [true]}, first: ${first}, skip: ${skip}) {
+    offerPrices(where: {active_in: [true], id_gt: "${lastId}"}, first: ${first}) {
       id
       price
       to
