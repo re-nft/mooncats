@@ -4,9 +4,8 @@
 const axios = require("axios");
 const path = require("path");
 const { promises: fs } = require("fs");
-const moonCatsData = require("../public/data.json");
-
 const DATA_PATH = path.resolve(__dirname, "../", "public", "data.json");
+const moonCatsData = require(DATA_PATH);
 
 const ONE_MONTH = 1000 * 60 * 60 * 24 * 30 * 1;
 
