@@ -14,6 +14,7 @@ import { calculatePrice } from "../../utils";
 import Modal from "../ui/modal";
 import Loader from "../ui/loader";
 import useOffers from "../../hooks/useOffers";
+import { RENFT_SUBGRAPH_ID_SEPARATOR } from "../../consts";
 
 enum OffereSortType {
   HIGH_PRICE = "HIGH_PRICE",
@@ -159,7 +160,7 @@ export const OfferedCats: React.FC = () => {
       </div>
       <div className="content__row content__items">
         {sortedOffer.map((offer, index) => {
-          const catId = offer.id.split("::")[0];
+          const catId = offer.id.split(RENFT_SUBGRAPH_ID_SEPARATOR)[0];
           return (
             <CatItem
               key={offer.id}
@@ -169,7 +170,7 @@ export const OfferedCats: React.FC = () => {
                 id: catId,
                 activeOffer: offer,
               }}
-              catInfo={catInfo && catInfo[catId]}
+              catInfo={catInfo?.[catId]}
               hasRescuerIdx={true}
               onClick={onCopyToClipboard}
             >

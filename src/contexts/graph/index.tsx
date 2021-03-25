@@ -132,14 +132,15 @@ export const GraphProvider: React.FC = ({ children }) => {
     const response = await fetch(`${window.location.origin}/data.json`, {
       signal,
     });
-    const data = await response.text();
-    const resolvedData = JSON.parse(data).reduce(
+    const data = await response.json();
+    const resolvedData = data.reduce(
       (memo: Record<string, CatInfo>, item: CatInfo) => {
         memo[item.catId] = item;
         return memo;
-      }
+      },
+      {}
     );
-    !unmounted.current && setCatInfo(resolvedData);
+    setCatInfo(resolvedData);
   };
 
   useEffect(() => {

@@ -35,8 +35,6 @@ const useOffers = (): {
           offersQuery
         );
 
-        console.log(offerPrices);
-
         setOffers((prevOffers) => [...prevOffers, ...offerPrices]);
       } catch (err) {
         setError(err);
