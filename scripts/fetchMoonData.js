@@ -47,7 +47,10 @@ const DATA_PATH = path.resolve(__dirname, "../", "public", "data.json");
 
     console.log("done :)");
   } catch (err) {
-    console.log(err.message);
+    await fs.writeFile(
+      DATA_PATH,
+      JSON.stringify({ created_at: new Date().toISOString(), data: [] })
+    );
     return;
   }
 })();
