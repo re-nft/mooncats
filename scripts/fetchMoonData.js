@@ -5,19 +5,10 @@ const axios = require("axios");
 const path = require("path");
 const { promises: fs } = require("fs");
 const DATA_PATH = path.resolve(__dirname, "../", "public", "data.json");
-const moonCatsData = require(DATA_PATH);
-
-const ONE_MONTH = 1000 * 60 * 60 * 24 * 30 * 1;
 
 (async function () {
+  if (await fs.stat(DATA_PATH)) await fs.unlink(DATA_PATH);
   try {
-    if (
-      new Date().getTime() >=
-      new Date(moonCatsData.created_at).getTime() + ONE_MONTH
-    ) {
-      return;
-    }
-
     console.log("fetching new mooncats !!");
     const { data: response } = await axios.get(
       "https://rarity.studio/files/new_mooncats.csv"
@@ -56,8 +47,7 @@ const ONE_MONTH = 1000 * 60 * 60 * 24 * 30 * 1;
 
     console.log("done :)");
   } catch (err) {
-    console.log("ERROR FETCHING MOONCATS DATA. ROLLING BACK");
-    await fs.writeFile(DATA_PATH, JSON.stringify(moonCatsData));
+    console.log(err.message);
     return;
   }
 })();
