@@ -132,7 +132,7 @@ export const GraphProvider: React.FC = ({ children }) => {
     const response = await fetch(`${window.location.origin}/data.json`, {
       signal,
     });
-    const data = await response.json();
+    const { data } = await response.json();
     const resolvedData = data.reduce(
       (memo: Record<string, CatInfo>, item: CatInfo) => {
         memo[item.catId] = item;
