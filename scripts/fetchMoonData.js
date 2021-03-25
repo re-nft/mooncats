@@ -12,7 +12,7 @@ const ONE_MONTH = 1000 * 60 * 60 * 24 * 30 * 1;
 (async function () {
   try {
     if (
-      new Date().getTime() <
+      new Date().getTime() >=
       new Date(moonCatsData.created_at).getTime() + ONE_MONTH
     ) {
       return;
