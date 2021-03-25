@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import request from "graphql-request";
 import React, { useContext, useEffect, useState } from "react";
 import { AdoptionOffer } from "../contexts/graph/types";
@@ -35,7 +36,21 @@ const useOffers = (): {
           offersQuery
         );
 
-        setOffers((prevOffers) => [...prevOffers, ...offerPrices]);
+        console.log(
+          offerPrices.length,
+          offerPrices.filter(
+            (offer: AdoptionOffer) =>
+              offer.to.toLowerCase() == ethers.constants.AddressZero
+          ).length
+        );
+
+        setOffers((prevOffers) => [
+          ...prevOffers,
+          ...offerPrices.filter(
+            (offer: AdoptionOffer) =>
+              offer.to.toLowerCase() == ethers.constants.AddressZero
+          ),
+        ]);
       } catch (err) {
         setError(err);
         console.error({ fetchAllOffersError: err });
