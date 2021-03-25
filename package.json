@@ -18,6 +18,7 @@
     "@types/react-helmet": "^6.1.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/url-parse": "^1.4.3",
+    "axios": "0.21.1",
     "bl": "^4.1.0",
     "cids": "^1.1.5",
     "classnames": "^2.2.6",
@@ -76,6 +77,8 @@
     "Fairlaunch"
   ],
   "scripts": {
+    "prestart": "./scripts/prebuild.sh",
+    "prebuild": "./scripts/prebuild.sh",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
