@@ -32,6 +32,7 @@
     "ipfs-core": "^0.5.2",
     "ipfs-http-client": "^45.0.0",
     "moment": "^2.29.1",
+    "next": "^10.0.9",
     "postcss": "^8.2.6",
     "ramda": "^0.27.1",
     "react": "^17.0.1",
@@ -39,28 +40,24 @@
     "react-helmet": "^6.1.0",
     "types": "^0.1.1",
     "typescript": "^4.1.2",
-    "web3modal": "^1.9.3",
-    "next": "^10.0.9"
+    "web3modal": "^1.9.3"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.15.1",
-    "@typescript-eslint/parser": "^4.15.1",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
     "eslint": "^7.22.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-react": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "lint-staged": "^10.5.4",
     "node-sass": "^5.0.0",
-    "prettier": "^2.1.2",
+    "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && lint-staged"
+      "pre-commit": "pretty-quick --staged && yarn lint"
     }
-  },
-  "lint-staged": {
-    "*.ts": "prettier --write"
   },
   "keywords": [
     "NFT",
@@ -78,8 +75,8 @@
     "build": "next build",
     "test": "next test",
     "eject": "next eject",
-    "lint": "eslint 'src/**'",
-    "format": "prettier --write 'src/**/*.ts' 'src/**/*.tsx' 'src/*.tsx' 'src/*.ts'"
+    "lint": "eslint --ext .ts,.tsx",
+    "format": "prettier --write .ts .tsx"
   },
   "eslintConfig": {
     "extends": [
@@ -99,5 +96,15 @@
     ]
   },
   "license": "UNLICENSED",
-  "private": true
+  "private": true,
+  "contributors": [
+    {
+      "name": "Nazariy Vavryk",
+      "email": "nazariy@inbox.ru"
+    },
+    {
+      "name": "Sundeep Charan Ramkumar",
+      "email": "webdevdesign@sundeepcharan.com"
+    }
+  ]
 }
