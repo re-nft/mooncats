@@ -1,14 +1,14 @@
-import mooncatparser from "./lib/mooncatparser";
+import mooncatparser from './lib/mooncatparser';
 
 export const short = (s: string): string =>
   `${s.substr(0, 5)}...${s.substr(s.length - 5, 5)}`;
 
 export const THROWS = (): void => {
-  throw new Error("must be implemented");
+  throw new Error('must be implemented');
 };
 
 export const ASYNC_THROWS = async (): Promise<void> => {
-  throw new Error("must be implemented");
+  throw new Error('must be implemented');
 };
 
 export const getRandomInt = (max: number): number => {
@@ -36,11 +36,11 @@ export const timeItAsync = async <T>(
   return res;
 };
 
-export const WRAPPER = "0x7c40c393dc0f283f318791d746d894ddd3693572";
+export const WRAPPER = '0x7c40c393dc0f283f318791d746d894ddd3693572';
 
 export const hexToAscii = (str1: string): string => {
   const hex = str1.slice(2).toString();
-  let str = "";
+  let str = '';
   for (let n = 0; n < hex.length; n += 2) {
     str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
   }
@@ -53,10 +53,10 @@ export const calculatePrice = (price: string): number =>
 export function drawCat(catId: string, size: number): string {
   size = size || 10;
   const data = mooncatparser(catId);
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   canvas.width = size * data.length;
   canvas.height = size * data[1].length;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
 
   for (let i = 0; i < data.length; i++) {
     for (let j = 0; j < data[i].length; j++) {
