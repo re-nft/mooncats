@@ -17,6 +17,6 @@
     "jsx": "preserve",
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": ["src", "hardhat", "components"],
   "exclude": ["node_modules"]
 }
