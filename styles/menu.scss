@@ -7,7 +7,7 @@
   &__item {
     background: #9a65ca;
     border: 0;
-    font-family: "Press Start 2P";
+    font-family: 'Press Start 2P';
     text-transform: uppercase;
     font-size: 12px;
     font-weight: 400;
@@ -31,7 +31,7 @@
     }
 
     &:before {
-      content: "";
+      content: '';
       display: block;
       position: absolute;
       width: 100%;

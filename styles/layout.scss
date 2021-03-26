@@ -49,7 +49,7 @@
   }
 
   &__logo {
-    background-image: url(./img/logo.jpg);
+    background-image: url('/public/logo.jpg');
     background-size: auto 90px;
     background-repeat: no-repeat;
     height: 90px;
@@ -157,7 +157,7 @@
 }
 
 .discord {
-  background: url(./img/discord.png);
+  background: url('/public/discord.png');
   width: 64px;
   height: 64px;
   display: block;
@@ -165,7 +165,7 @@
 }
 
 .twitter {
-  background: url(./img/twitter.png);
+  background: url('/public/twitter.png');
   width: 64px;
   height: 64px;
   display: block;
@@ -210,7 +210,7 @@
     transform: translate(-50%, 0);
 
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -317,7 +317,7 @@
 
   &:hover {
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -459,7 +459,7 @@
     cursor: pointer;
     transition: all 250ms;
     color: #fff;
-    font-family: "VT323";
+    font-family: 'VT323';
     line-height: 1;
     font-size: 28px;
     text-transform: uppercase;
@@ -491,7 +491,7 @@
     }
 
     &:before {
-      content: "";
+      content: '';
       display: block;
       position: absolute;
       width: 100%;
@@ -516,7 +516,7 @@
     cursor: pointer;
     transition: all 250ms;
     color: #fff;
-    font-family: "VT323";
+    font-family: 'VT323';
     line-height: 1;
     font-size: 28px;
     text-transform: uppercase;
@@ -544,7 +544,7 @@
     }
 
     &:before {
-      content: "";
+      content: '';
       display: block;
       position: absolute;
       width: 100%;
@@ -580,7 +580,7 @@
 
   &.checked {
     &:after {
-      content: "";
+      content: '';
       position: absolute;
       top: -3px;
       left: -3px;
@@ -600,7 +600,7 @@
 
   &:hover {
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
