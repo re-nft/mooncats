@@ -20,9 +20,11 @@ type GraphContextType = {
   allRequests: AdoptionRequest[];
   allOffers: AdoptionOffer[];
   isDataLoading: boolean;
-  catInfo: Record<string, CatInfo>;
+  // catInfo: Record<string, CatInfo>;
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
+  fetchMyMoonCats(): Promise<void>;
+  fetchAllData(): void;
 };
 
 const DefaultGraphContext: GraphContextType = {
@@ -30,12 +32,13 @@ const DefaultGraphContext: GraphContextType = {
   allMoonCats: [],
   allRequests: [],
   allOffers: [],
-  catInfo: {},
+  // catInfo: {},
   isDataLoading: false,
   // @ts-ignore
   fetchAllMoonCats: () => {
     return [];
   },
+  fetchMyMoonCats: async () => {},
   // @ts-ignore
   fetchCatById: () => {
     return [];
@@ -48,6 +51,7 @@ const DefaultGraphContext: GraphContextType = {
   fetchAllAdoptionBids: () => {
     return [];
   },
+  fetchAllData: () => {},
 };
 
 const GraphContext = createContext<GraphContextType>(DefaultGraphContext);
@@ -59,7 +63,7 @@ export const GraphProvider: React.FC = ({ children }) => {
   const [allMoonCats, _] = useState<Cat[]>([]);
   const [allRequests, setAllRequests] = useState<AdoptionRequest[]>([]);
   const [allOffers, setAllOffers] = useState<AdoptionOffer[]>([]);
-  const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>({});
+  // const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>({});
 
   const fetchMyMoonCats = async () => {
     if (!currentAddress) return;
@@ -75,6 +79,7 @@ export const GraphProvider: React.FC = ({ children }) => {
     if (first) {
       setUsersMoonCats(first?.cats ?? []);
     }
+    setDataLoading(true);
   };
 
   const fetchAllMoonCats = async (
@@ -168,29 +173,28 @@ export const GraphProvider: React.FC = ({ children }) => {
     return response?.cats[0];
   };
 
-  const fetchRarityData = async () => {
-    const response = await fetch(`${window.location.origin}/data.json`);
-    const data = await response.text();
-    const resolvedData = JSON.parse(data).reduce(
-      (memo: Record<string, CatInfo>, item: CatInfo) => {
-        memo[item.catId] = item;
-        return memo;
-      }
-    );
-    setCatInfo(resolvedData);
-  };
+  // const fetchRarityData = async () => {
+  //   const response = await fetch(`${window.location.origin}/data.json`);
+  //   const data = await response.text();
+  //   const resolvedData = JSON.parse(data).reduce(
+  //     (memo: Record<string, CatInfo>, item: CatInfo) => {
+  //       memo[item.catId] = item;
+  //       return memo;
+  //     }
+  //   );
+  //   setCatInfo(resolvedData);
+  // };
 
-  // useEffect(() => {
-  //   Promise.all([
-  //     fetchMyMoonCats(),
-  //     fetchRarityData(),
-  //     fetchAllRequests(),
-  //     fetchAllOffers(),
-  //   ]).then(() => {
-  //     setDataLoading(true);
-  //   });
-  //   /* eslint-disable-next-line */
-  // }, []);
+  const fetchAllData = async () => {
+    console.log('HHH');
+    await Promise.all([
+      fetchMyMoonCats(),
+      // fetchRarityData(),
+      fetchAllRequests(),
+      fetchAllOffers(),
+    ]);
+    setDataLoading(true);
+  };
 
   return (
     <GraphContext.Provider
@@ -198,11 +202,13 @@ export const GraphProvider: React.FC = ({ children }) => {
         usersMoonCats,
         allMoonCats,
         allRequests,
-        catInfo,
+        // catInfo,
         allOffers,
         isDataLoading,
         fetchAllMoonCats,
+        fetchMyMoonCats,
         fetchCatById,
+        fetchAllData,
       }}
     >
       {children}
