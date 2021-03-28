@@ -9,11 +9,10 @@ import { Cat, CatInfo } from '../contexts/graph/types';
 import { CurrentAddressContext } from '../hardhat/SymfoniContext';
 
 import CatItem from '../components/CatItem';
-import CatCopyNotifier from '../components/cat/copy-notifer';
+import CatCopyNotifier from '../components/CopyNotifier';
 import Loader from '../components/ui/loader';
 import Modal from '../components/ui/modal';
 import { calculatePrice } from '../utils';
-import catInfo from '../public/data.json';
 
 type IndexPageProps = {
   cats: Cat[];
@@ -121,9 +120,6 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
           <CatItem
             key={c.id}
             cat={c}
-            catInfo={(catInfo as Array<CatInfo>).find(
-              (cat: CatInfo) => cat.catId === c.id
-            )}
             hasRescuerIdx={true}
             onClick={handleCopyToClipboard}
           >

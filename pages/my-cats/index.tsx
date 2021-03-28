@@ -9,7 +9,6 @@ import Modal from '../../components/ui/modal';
 import Loader from '../../components/ui/loader';
 
 import { Cat } from '../../contexts/graph/types';
-import catInfo from '../../public/data.json';
 
 const MyCats: React.FC = () => {
   const { usersMoonCats, isDataLoading, fetchMyMoonCats } = useContext(
@@ -94,12 +93,7 @@ const MyCats: React.FC = () => {
       {cats.length !== 0 && (
         <div className="content__row content__items">
           {cats.map((cat) => (
-            <CatItem
-              key={cat.id}
-              cat={cat}
-              catInfo={catInfo && catInfo[cat.id]}
-              onClick={onCopyToClipboard}
-            >
+            <CatItem key={cat.id} cat={cat} onClick={onCopyToClipboard}>
               <div className="nft__control">
                 {!cat.activeOffer && (
                   <button

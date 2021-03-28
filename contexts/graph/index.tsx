@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { request } from 'graphql-request';
-import { ethers } from 'ethers';
 import { CurrentAddressContext } from '../../hardhat/SymfoniContext';
 import { timeItAsync } from '../../utils';
 
@@ -24,7 +23,10 @@ type GraphContextType = {
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
   fetchMyMoonCats(): Promise<void>;
-  fetchAllData(): void;
+  fetchAllOffers(
+    take: number,
+    skip: number
+  ): Promise<AdoptionOffer[] | undefined>;
 };
 
 const DefaultGraphContext: GraphContextType = {
@@ -51,7 +53,8 @@ const DefaultGraphContext: GraphContextType = {
   fetchAllAdoptionBids: () => {
     return [];
   },
-  fetchAllData: () => {},
+  // @ts-ignore
+  fetchAllOffers: async () => [],
 };
 
 const GraphContext = createContext<GraphContextType>(DefaultGraphContext);
@@ -109,12 +112,15 @@ export const GraphProvider: React.FC = ({ children }) => {
       async () => await request(subgraphURI, query)
     );
     setAllRequests(response.requestPrices ?? []);
+    setDataLoading(true);
   };
 
-  const _fetchAllOffers = async (
+  const fetchAllOffers = async (
     take: number,
     skip: number
   ): Promise<AdoptionOffer[] | undefined> => {
+    setDataLoading(false);
+    setAllOffers([]);
     if (!currentAddress) return;
     const query = queryAllOffers(take, skip);
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
@@ -124,40 +130,9 @@ export const GraphProvider: React.FC = ({ children }) => {
       `Pulled All Offers Cat Nfts`,
       async () => await request(subgraphURI, query)
     );
+    setAllOffers(response.offerPrices ?? []);
+    setDataLoading(true);
     return response?.offerPrices ?? [];
-  };
-
-  const fetchAllOffers = () => {
-    const result: AdoptionOffer[] = [];
-    const takeCount = 900;
-    let skipCount = 0;
-
-    // @ts-ignore
-    function getOffers(take: number, skip: number) {
-      return _fetchAllOffers(take, skip).then(
-        (items: AdoptionOffer[] | undefined) => {
-          if (items) {
-            if (items.length === 0) {
-              return result;
-            } else {
-              result.push(...items);
-              skipCount = skipCount + take;
-              return getOffers(takeCount, skipCount);
-            }
-          }
-        }
-      );
-    }
-
-    getOffers(takeCount, skipCount).then((adoptionOffers: AdoptionOffer[]) => {
-      if (adoptionOffers) {
-        const offers = adoptionOffers.filter(
-          (offer: AdoptionOffer) =>
-            offer.to.toLowerCase() == ethers.constants.AddressZero
-        );
-        setAllOffers(offers);
-      }
-    });
   };
 
   const fetchCatById = async (catId: string): Promise<Cat | undefined> => {
@@ -173,42 +148,18 @@ export const GraphProvider: React.FC = ({ children }) => {
     return response?.cats[0];
   };
 
-  // const fetchRarityData = async () => {
-  //   const response = await fetch(`${window.location.origin}/data.json`);
-  //   const data = await response.text();
-  //   const resolvedData = JSON.parse(data).reduce(
-  //     (memo: Record<string, CatInfo>, item: CatInfo) => {
-  //       memo[item.catId] = item;
-  //       return memo;
-  //     }
-  //   );
-  //   setCatInfo(resolvedData);
-  // };
-
-  const fetchAllData = async () => {
-    console.log('HHH');
-    await Promise.all([
-      fetchMyMoonCats(),
-      // fetchRarityData(),
-      fetchAllRequests(),
-      fetchAllOffers(),
-    ]);
-    setDataLoading(true);
-  };
-
   return (
     <GraphContext.Provider
       value={{
         usersMoonCats,
         allMoonCats,
         allRequests,
-        // catInfo,
         allOffers,
         isDataLoading,
         fetchAllMoonCats,
         fetchMyMoonCats,
         fetchCatById,
-        fetchAllData,
+        fetchAllOffers,
       }}
     >
       {children}

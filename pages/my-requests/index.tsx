@@ -6,7 +6,6 @@ import { Cat, AdoptionRequest } from '../../contexts/graph/types';
 import CatNotifer from '../../components/CatNotifier';
 import CatItem from '../../components/CatItem';
 
-import catInfo from '../../public/data.json';
 import { queryAllRequests } from '../../contexts/graph/queries';
 import request from 'graphql-request';
 import { ENDPOINT_MOONCAT_PROD } from '../../lib/consts';
@@ -63,12 +62,7 @@ export const MyCatsRequests: React.FC<{ allRequests: AdoptionRequest[] }> = ({
       {cats.length !== 0 && (
         <div className="content__row content__items">
           {cats.map((cat) => (
-            <CatItem
-              key={cat.id}
-              cat={cat}
-              catInfo={catInfo && catInfo[cat.id]}
-              onClick={onCopyToClipboard}
-            >
+            <CatItem key={cat.id} cat={cat} onClick={onCopyToClipboard}>
               <div className="nft__control">
                 <button
                   className="nft__button"

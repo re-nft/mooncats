@@ -8,6 +8,7 @@ export const MAX_UINT256 =
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
 
 export const FETCH_ALL_CATS_TAKE = 120;
+export const FETCH_ALL_OFFERS_TAKE = 900;
 export const ENDPOINT_MOONCAT_PROD =
   'https://api.thegraph.com/subgraphs/id/QmNTtZFaRTiqX3ZLuE86crx75nAYPydMsTyee95SUMyE9J';
 
