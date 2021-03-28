@@ -1,4 +1,5 @@
 import { useState, useCallback, useContext, useEffect, memo } from 'react';
+import Head from 'next/head';
 import { ethers } from 'ethers';
 import GraphContext from '../../contexts/graph/index';
 import MooncatRescueContext from '../../contexts/mooncats/index';
@@ -89,6 +90,9 @@ const MyCats: React.FC = () => {
 
   return (
     <div className="content">
+      <Head>
+        <title>reNFT - My cats</title>
+      </Head>
       {cats.length === 0 && <div className="no-cats">No cats here...</div>}
       {cats.length !== 0 && (
         <div className="content__row content__items">

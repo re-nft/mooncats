@@ -13,6 +13,7 @@ import Loader from '../../components/ui/loader';
 import { queryAllOffers } from '../../contexts/graph/queries';
 import { ENDPOINT_MOONCAT_PROD, FETCH_ALL_OFFERS_TAKE } from '../../lib/consts';
 import request from 'graphql-request';
+import Head from 'next/head';
 
 enum OffereSortType {
   HIGH_PRICE = 'HIGH_PRICE',
@@ -146,6 +147,9 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   const sortedOffer = allOffers.slice(0).sort(sortFn[currentSortType]);
   return (
     <div className="content">
+      <Head>
+        <title>reNFT - Offered cats</title>
+      </Head>
       <div className="content__row content__navigation">
         <div className="sort__control">
           <div className="sort__title">Sort by:</div>

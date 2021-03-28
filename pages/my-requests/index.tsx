@@ -9,6 +9,7 @@ import CatItem from '../../components/CatItem';
 import { queryAllRequests } from '../../contexts/graph/queries';
 import request from 'graphql-request';
 import { ENDPOINT_MOONCAT_PROD } from '../../lib/consts';
+import Head from 'next/head';
 
 export const MyCatsRequests: React.FC<{ allRequests: AdoptionRequest[] }> = ({
   allRequests,
@@ -58,6 +59,9 @@ export const MyCatsRequests: React.FC<{ allRequests: AdoptionRequest[] }> = ({
 
   return (
     <div className="content">
+      <Head>
+        <title>reNFT - My requests</title>
+      </Head>
       {cats.length === 0 && <div className="no-cats">No cats here...</div>}
       {cats.length !== 0 && (
         <div className="content__row content__items">

@@ -13,6 +13,7 @@ import CatCopyNotifier from '../components/CopyNotifier';
 import Loader from '../components/ui/loader';
 import Modal from '../components/ui/modal';
 import { calculatePrice } from '../utils';
+import Head from 'next/head';
 
 type IndexPageProps = {
   cats: Cat[];
@@ -149,6 +150,9 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
 
   return (
     <div className="content">
+      <Head>
+        <title>reNFT - All cats</title>
+      </Head>
       <div className="content__row content__navigation">
         <div className="switch">
           <div className="switch__control" onClick={handleSwitchControl}>
