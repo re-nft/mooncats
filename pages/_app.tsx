@@ -30,6 +30,12 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
+        <meta property="og:description" content="reNFTs MoonCat Base" />
+        <meta property="og:title" content="MoonCat Rescue Shop" />
+        <meta property="twitter:description" content="reNFTs MoonCat Base" />
+        <meta property="twitter:title" content="MoonCat Rescue Shop" />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:site" content="@renftlabs" />
       </Head>
       <Symfoni>
         <MooncatsProvider>
