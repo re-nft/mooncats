@@ -12,9 +12,7 @@ import {
   queryAllOffers,
 } from './queries';
 import { Cat, CatInfo, AdoptionRequest, AdoptionOffer } from './types';
-
-const ENDPOINT_MOONCAT_PROD =
-  'https://api.thegraph.com/subgraphs/id/QmNTtZFaRTiqX3ZLuE86crx75nAYPydMsTyee95SUMyE9J';
+import { ENDPOINT_MOONCAT_PROD } from '../../lib/consts';
 
 type GraphContextType = {
   usersMoonCats: Cat[];
@@ -182,17 +180,17 @@ export const GraphProvider: React.FC = ({ children }) => {
     setCatInfo(resolvedData);
   };
 
-  useEffect(() => {
-    Promise.all([
-      fetchMyMoonCats(),
-      fetchRarityData(),
-      fetchAllRequests(),
-      fetchAllOffers(),
-    ]).then(() => {
-      setDataLoading(true);
-    });
-    /* eslint-disable-next-line */
-  }, []);
+  // useEffect(() => {
+  //   Promise.all([
+  //     fetchMyMoonCats(),
+  //     fetchRarityData(),
+  //     fetchAllRequests(),
+  //     fetchAllOffers(),
+  //   ]).then(() => {
+  //     setDataLoading(true);
+  //   });
+  //   /* eslint-disable-next-line */
+  // }, []);
 
   return (
     <GraphContext.Provider
