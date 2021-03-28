@@ -1,18 +1,37 @@
 import React, { useState, useCallback } from 'react';
+import NextLink from 'next/link';
 import { ethers } from 'ethers';
-import { Cat, CatInfo } from '../../contexts/graph/types';
-import { WRAPPER, hexToAscii, calculatePrice, drawCat } from '../../utils';
-import Modal from '../ui/modal';
+import { Cat, CatInfo } from '../contexts/graph/types';
+import { WRAPPER, hexToAscii, calculatePrice, drawCat } from '../utils';
+import Modal from './ui/modal';
 import moment from 'moment';
 
-const CatItem: React.FC<{
+interface CatItemProps {
   hasRescuerIdx?: boolean;
   rescuerId?: number;
   cat: Cat;
   catInfo?: CatInfo;
   onClick(cat: Cat): void;
   children: React.ReactChild;
-}> = ({
+}
+
+const CatListItem = ({
+  title,
+  value,
+}: {
+  title: string | React.ReactChild;
+  value: string | React.ReactChild;
+}) => {
+  return (
+    <div className="nft__meta_row">
+      <div className="nft__meta_title">{title}</div>
+      <div className="nft__meta_dot"></div>
+      <div className="nft__meta_value">{value}</div>
+    </div>
+  );
+};
+
+const CatItem: React.FC<CatItemProps> = ({
   cat,
   onClick,
   hasRescuerIdx: hasRescueIdx = false,
@@ -27,15 +46,6 @@ const CatItem: React.FC<{
   const handleModalOpen = useCallback(() => setModalOpen(true), []);
   const handleModalClose = useCallback(() => setModalOpen(false), []);
 
-  const handleHistoryModalOpen = useCallback(
-    () => setHistoryModalOpen(true),
-    []
-  );
-  const handleHistoryModalClose = useCallback(
-    () => setHistoryModalOpen(false),
-    []
-  );
-
   const onClickHandler = useCallback(() => {
     onClick(cat);
   }, [cat, onClick]);
@@ -48,101 +58,84 @@ const CatItem: React.FC<{
           {activeRequest && <div className="nft__adoption_requested">R</div>}
         </div>
         {provenance?.offerPrices && provenance?.offerPrices?.length > 1 && (
-          <div className="nft__history" onClick={handleHistoryModalOpen}>
+          <div
+            className="nft__history"
+            onClick={() => setHistoryModalOpen(true)}
+          >
             H
           </div>
         )}
+        <NextLink href={`/cat/${cat.id}`}>
+          <a className="pseudo-link">
+            <div className="nft__image">
+              {img ? (
+                <img loading="lazy" src={img} />
+              ) : (
+                <div className="no-img">NO CAT</div>
+              )}
+            </div>
+          </a>
+        </NextLink>
         <div
           className="nft__meta"
           onClick={onClickHandler}
           title="Click to Copy Cat ID"
         >
           {activeOffer?.price && (
-            <div className="nft__meta_row">
-              <div className="nft__meta_title">
-                <b style={{ fontSize: '24px' }}>Sell Price</b>
-              </div>
-              <div className="nft__meta_dot"></div>
-              <div className="nft__meta_value">
+            <CatListItem
+              title={<b style={{ fontSize: '24px' }}>Best Buy Price</b>}
+              value={
                 <b style={{ fontSize: '24px' }}>
                   {calculatePrice(activeOffer.price)}&nbsp;ETH
                 </b>
-              </div>
-            </div>
+              }
+            />
           )}
           {activeRequest?.price && (
-            <div className="nft__meta_row">
-              <div className="nft__meta_title">
-                <b style={{ fontSize: '24px' }}>Best Buy Price</b>
-              </div>
-              <div className="nft__meta_dot"></div>
-              <div className="nft__meta_value">
+            <CatListItem
+              title={<b style={{ fontSize: '24px' }}>Best Buy Price</b>}
+              value={
                 <b style={{ fontSize: '24px' }}>
                   {calculatePrice(activeRequest.price)}&nbsp;ETH
                 </b>
-              </div>
-            </div>
+              }
+            />
           )}
-          <div className="nft__meta_row">
-            <div className="nft__meta_title">Cat id</div>
-            <div className="nft__meta_dot"></div>
-            <div className="nft__meta_value">{id}</div>
-          </div>
-          {name && (
-            <div className="nft__meta_row">
-              <div className="nft__meta_title">Name</div>
-              <div className="nft__meta_dot"></div>
-              <div className="nft__meta_value">{hexToAscii(name)}</div>
-            </div>
-          )}
-          <div className="nft__meta_row">
-            <div className="nft__meta_title">Rescued on</div>
-            <div className="nft__meta_dot"></div>
-            <div className="nft__meta_value">
-              {moment(Number(cat.rescueTimestamp) * 1000).format(
-                'MM/D/YY hh:mm'
-              )}
-            </div>
-          </div>
+          <CatListItem title="Cat id" value={id} />
+          {name && <CatListItem title="Name" value={hexToAscii(name)} />}
+          <CatListItem
+            title="Rescued on"
+            value={moment(Number(cat.rescueTimestamp) * 1000).format(
+              'MM/D/YY hh:mm'
+            )}
+          />
           {catInfo && (
             <>
-              <div className="nft__meta_row">
-                <div className="nft__meta_title">Color</div>
-                <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">{catInfo.color}</div>
-              </div>
-              <div className="nft__meta_row">
-                <div className="nft__meta_title">Palette</div>
-                <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">{catInfo.palette}</div>
-              </div>
-              <div className="nft__meta_row">
-                <div className="nft__meta_title">Pattern</div>
-                <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">{catInfo.pattern}</div>
-              </div>
-              <div className="nft__meta_row">
-                <div className="nft__meta_title">Statistical Rank</div>
-                <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">{catInfo.statisticalRank}</div>
-              </div>
-              <div className="nft__meta_row">
-                <div className="nft__meta_title">Trait Rarity Rank</div>
-                <div className="nft__meta_dot"></div>
-                <div className="nft__meta_value">{catInfo.traitRarityRank}</div>
-              </div>
+              <CatListItem title="Color" value={catInfo.color} />
+              <CatListItem title="Palette" value={catInfo.palette} />
+              <CatListItem title="Pattern" value={catInfo.pattern} />
+              <CatListItem
+                title="Statistical Rank"
+                value={catInfo.statisticalRank}
+              />
+              <CatListItem
+                title="Trait Rarity Rank"
+                value={catInfo.traitRarityRank}
+              />
             </>
           )}
         </div>
         {children}
       </div>
-      <Modal open={isHistoryModalOpen} handleClose={handleHistoryModalClose}>
+      <Modal
+        open={isHistoryModalOpen}
+        handleClose={() => setHistoryModalOpen(false)}
+      >
         <div className="adoption">
           {provenance?.offerPrices && provenance?.offerPrices.length !== 0 && (
             <div className="adoption__item">
               <h3>Historical Offer Prices</h3>
               <ul className="adoption__item_table">
-                {/* @ts-ignore */}
                 {provenance.offerPrices
                   .sort(
                     (a, b) =>
@@ -166,34 +159,35 @@ const CatItem: React.FC<{
               </ul>
             </div>
           )}
-          {provenance?.requestPrices && provenance?.requestPrices.length !== 0 && (
-            <div className="adoption__item">
-              <h3>Historical Request Prices</h3>
-              <ul className="adoption__item_table">
-                {/* @ts-ignore */}
-                {provenance.requestPrices
-                  .sort(
-                    (a, b) =>
-                      //@ts-ignore
-                      new Date(Number(a.timestamp) * 100) -
-                      //@ts-ignore
-                      new Date(Number(b.timestamp) * 100)
-                  )
-                  .map((item) => (
-                    <li className="table-row" key={item.timestamp}>
-                      <span className="table-row-column">
-                        {moment(Number(item.timestamp) * 1000).format(
-                          'MMMM D YYYY h:mm'
-                        )}
-                      </span>
-                      <span className="table-row-column">
-                        {calculatePrice(item.price)}&nbsp;ETH
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
+          {provenance?.requestPrices &&
+            provenance?.requestPrices?.length !== 0 && (
+              <div className="adoption__item">
+                <h3>Historical Request Prices</h3>
+                <ul className="adoption__item_table">
+                  {/* @ts-ignore */}
+                  {provenance.requestPrices
+                    .sort(
+                      (a, b) =>
+                        //@ts-ignore
+                        new Date(Number(a.timestamp) * 100) -
+                        //@ts-ignore
+                        new Date(Number(b.timestamp) * 100)
+                    )
+                    .map((item) => (
+                      <li className="table-row" key={item.timestamp}>
+                        <span className="table-row-column">
+                          {moment(Number(item.timestamp) * 1000).format(
+                            'MMMM D YYYY h:mm'
+                          )}
+                        </span>
+                        <span className="table-row-column">
+                          {calculatePrice(item.price)}&nbsp;ETH
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
         </div>
       </Modal>
       <Modal open={isModalOpen} handleClose={handleModalClose}>

@@ -5,14 +5,15 @@ import { ENDPOINT_MOONCAT_PROD, FETCH_ALL_CATS_TAKE } from '../lib/consts';
 
 import GraphContext from '../contexts/graph';
 import MooncatsContext from '../contexts/mooncats';
-import { Cat } from '../contexts/graph/types';
+import { Cat, CatInfo } from '../contexts/graph/types';
 import { CurrentAddressContext } from '../hardhat/SymfoniContext';
 
-import CatItem from '../components/cat/cat-item';
+import CatItem from '../components/CatItem';
 import CatCopyNotifier from '../components/cat/copy-notifer';
 import Loader from '../components/ui/loader';
 import Modal from '../components/ui/modal';
 import { calculatePrice } from '../utils';
+import catInfo from '../public/data.json';
 
 type IndexPageProps = {
   cats: Cat[];
@@ -26,15 +27,15 @@ enum WrappedFilters {
 const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
   const [currentAddress] = useContext(CurrentAddressContext);
   // Contexts
-  const { fetchAllMoonCats, catInfo } = useContext(GraphContext);
+  const { fetchAllMoonCats } = useContext(GraphContext);
   const { acceptOffer } = useContext(MooncatsContext);
 
   // Local state
   const [cats, setCats] = useState(ssrCats);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [currentCat, setCurrentCat] = useState<Cat>();
+  const [currentCat, setCurrentCat] = useState<Cat>(undefined);
   const [error, setError] = useState<string>(undefined);
-  const [currentCatPrice, setCurrentCatPrice] = useState<string>();
+  const [_, setCurrentCatPrice] = useState<string>();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [skipCount, setSkipCount] = useState<number>(240);
@@ -95,6 +96,8 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
     } catch (err) {
       setError(err?.message);
     }
+    handleModalClose();
+    setCurrentCat(undefined);
   }, [currentCat, handleModalClose, acceptOffer]);
 
   const loadCats = useCallback(async () => {
@@ -118,7 +121,9 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
           <CatItem
             key={c.id}
             cat={c}
-            catInfo={catInfo?.[c.id]}
+            catInfo={(catInfo as Array<CatInfo>).find(
+              (cat: CatInfo) => cat.catId === c.id
+            )}
             hasRescuerIdx={true}
             onClick={handleCopyToClipboard}
           >
@@ -138,7 +143,7 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
     );
   };
 
-  if (!currentAddress) return <h1>You must connect your wallet to proceed!</h1>;
+  if (!currentAddress) return <h1>Fetching address ...</h1>;
   if (isLoading)
     return (
       <div className="content center">
@@ -197,4 +202,4 @@ export async function getStaticProps() {
   };
 }
 
-export default Index;
+export default React.memo(Index);
