@@ -19,6 +19,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/url-parse": "^1.4.3",
     "@zeit/next-sass": "^1.0.1",
+    "axios": "^0.21.1",
     "bl": "^4.1.0",
     "cids": "^1.1.5",
     "classnames": "^2.2.6",
@@ -71,6 +72,7 @@
     "Fairlaunch"
   ],
   "scripts": {
+    "prebuild": "./scripts/prebuild.sh",
     "start": "next start",
     "dev": "next dev",
     "build": "next build",
