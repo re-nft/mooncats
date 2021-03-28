@@ -1,16 +1,16 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import NextLink from 'next/link';
 import { ethers } from 'ethers';
 import { Cat, CatInfo } from '../contexts/graph/types';
 import { WRAPPER, hexToAscii, calculatePrice, drawCat } from '../utils';
 import Modal from './ui/modal';
 import moment from 'moment';
+import catInfo from '../public/data.json';
 
 interface CatItemProps {
   hasRescuerIdx?: boolean;
   rescuerId?: number;
   cat: Cat;
-  catInfo?: CatInfo;
   onClick(cat: Cat): void;
   children: React.ReactChild;
 }
@@ -35,7 +35,6 @@ const CatItem: React.FC<CatItemProps> = ({
   cat,
   onClick,
   hasRescuerIdx: hasRescueIdx = false,
-  catInfo,
   children,
 }) => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
@@ -49,6 +48,11 @@ const CatItem: React.FC<CatItemProps> = ({
   const onClickHandler = useCallback(() => {
     onClick(cat);
   }, [cat, onClick]);
+
+  const catInfoInd = useMemo(
+    () => (catInfo as Array<CatInfo>).find((cInd) => cInd.catId === cat.id),
+    [catInfo, cat.id]
+  );
 
   return (
     <>
@@ -109,18 +113,18 @@ const CatItem: React.FC<CatItemProps> = ({
               'MM/D/YY hh:mm'
             )}
           />
-          {catInfo && (
+          {catInfoInd && (
             <>
-              <CatListItem title="Color" value={catInfo.color} />
-              <CatListItem title="Palette" value={catInfo.palette} />
-              <CatListItem title="Pattern" value={catInfo.pattern} />
+              <CatListItem title="Color" value={catInfoInd.color} />
+              <CatListItem title="Palette" value={catInfoInd.palette} />
+              <CatListItem title="Pattern" value={catInfoInd.pattern} />
               <CatListItem
                 title="Statistical Rank"
-                value={catInfo.statisticalRank}
+                value={catInfoInd.statisticalRank}
               />
               <CatListItem
                 title="Trait Rarity Rank"
-                value={catInfo.traitRarityRank}
+                value={catInfoInd.traitRarityRank}
               />
             </>
           )}
