@@ -15,7 +15,7 @@ interface CatItemProps {
   children: React.ReactChild;
 }
 
-const CatListItem = ({
+export const CatListItem = ({
   title,
   value,
 }: {
@@ -31,12 +31,126 @@ const CatListItem = ({
   );
 };
 
-const CatItem: React.FC<CatItemProps> = ({
-  cat,
-  onClick,
-  hasRescuerIdx: hasRescueIdx = false,
-  children,
-}) => {
+export const CatAdoptionDetail: React.FC<{ cat: Cat }> = ({ cat }) => {
+  const { provenance } = cat;
+  return (
+    <div className="adoption">
+      {provenance?.offerPrices && provenance?.offerPrices.length !== 0 && (
+        <div className="adoption__item">
+          <h3>Historical Offer Prices</h3>
+          <ul className="adoption__item_table">
+            {provenance.offerPrices
+              .sort(
+                (a, b) =>
+                  //@ts-ignore
+                  new Date(Number(a.timestamp) * 100) -
+                  //@ts-ignore
+                  new Date(Number(b.timestamp) * 100)
+              )
+              .map((item) => (
+                <li className="table-row" key={item.timestamp}>
+                  <span className="table-row-column">
+                    {moment(Number(item.timestamp) * 1000).format(
+                      'MMMM D YYYY h:mm'
+                    )}
+                  </span>
+                  <span className="table-row-column">
+                    {calculatePrice(item.price)}&nbsp;ETH
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+      {provenance?.requestPrices && provenance?.requestPrices?.length !== 0 && (
+        <div className="adoption__item">
+          <h3>Historical Request Prices</h3>
+          <ul className="adoption__item_table">
+            {/* @ts-ignore */}
+            {provenance.requestPrices
+              .sort(
+                (a, b) =>
+                  //@ts-ignore
+                  new Date(Number(a.timestamp) * 100) -
+                  //@ts-ignore
+                  new Date(Number(b.timestamp) * 100)
+              )
+              .map((item) => (
+                <li className="table-row" key={item.timestamp}>
+                  <span className="table-row-column">
+                    {moment(Number(item.timestamp) * 1000).format(
+                      'MMMM D YYYY h:mm'
+                    )}
+                  </span>
+                  <span className="table-row-column">
+                    {calculatePrice(item.price)}&nbsp;ETH
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const CatAdoptionRequest: React.FC<{ cat: Cat }> = ({ cat }) => {
+  const { activeOffer, activeRequest } = cat;
+  return (
+    <div
+      className={`adoption ${activeOffer && 'offer'} ${
+        activeRequest && 'request'
+      }`}
+    >
+      {cat.isWrapped && (
+        <div className="adoption__item">
+          <h3>Wrapped</h3>
+          <p>Too bad...</p>
+        </div>
+      )}
+      {cat.isWrapped && activeOffer && (
+        <div className="adoption__item">
+          <h3>Offer</h3>
+          <p>
+            Owner of this cat is offering &nbsp;
+            {activeOffer.to != ethers.constants.AddressZero ? (
+              <a
+                target="blank"
+                rel="noreferrer"
+                href={`https://etherscan.io/address/${activeOffer.to}`}
+              >
+                {activeOffer.to}
+              </a>
+            ) : (
+              'everyone'
+            )}
+            , to buy it from them for {calculatePrice(activeOffer.price)} ETH
+          </p>
+        </div>
+      )}
+      {activeRequest && (
+        <div className="adoption__item">
+          <h3>Request</h3>
+          <p>
+            <a
+              target="blank"
+              rel="noreferrer"
+              href={`https://etherscan.io/address/${activeRequest.from}`}
+            >
+              {activeRequest.from}
+            </a>{' '}
+            likes this cat, and they want to buy it for&nbsp;
+            {calculatePrice(activeRequest.price)} ETH
+            {activeOffer?.to.toLowerCase() == WRAPPER &&
+              '... shame it is wrapped :('}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CatItem: React.FC<CatItemProps> = ({ cat, onClick, children }) => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isHistoryModalOpen, setHistoryModalOpen] = useState<boolean>(false);
   const { id, name, activeOffer, activeRequest, provenance } = cat;
@@ -135,117 +249,10 @@ const CatItem: React.FC<CatItemProps> = ({
         open={isHistoryModalOpen}
         handleClose={() => setHistoryModalOpen(false)}
       >
-        <div className="adoption">
-          {provenance?.offerPrices && provenance?.offerPrices.length !== 0 && (
-            <div className="adoption__item">
-              <h3>Historical Offer Prices</h3>
-              <ul className="adoption__item_table">
-                {provenance.offerPrices
-                  .sort(
-                    (a, b) =>
-                      //@ts-ignore
-                      new Date(Number(a.timestamp) * 100) -
-                      //@ts-ignore
-                      new Date(Number(b.timestamp) * 100)
-                  )
-                  .map((item) => (
-                    <li className="table-row" key={item.timestamp}>
-                      <span className="table-row-column">
-                        {moment(Number(item.timestamp) * 1000).format(
-                          'MMMM D YYYY h:mm'
-                        )}
-                      </span>
-                      <span className="table-row-column">
-                        {calculatePrice(item.price)}&nbsp;ETH
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-          {provenance?.requestPrices &&
-            provenance?.requestPrices?.length !== 0 && (
-              <div className="adoption__item">
-                <h3>Historical Request Prices</h3>
-                <ul className="adoption__item_table">
-                  {/* @ts-ignore */}
-                  {provenance.requestPrices
-                    .sort(
-                      (a, b) =>
-                        //@ts-ignore
-                        new Date(Number(a.timestamp) * 100) -
-                        //@ts-ignore
-                        new Date(Number(b.timestamp) * 100)
-                    )
-                    .map((item) => (
-                      <li className="table-row" key={item.timestamp}>
-                        <span className="table-row-column">
-                          {moment(Number(item.timestamp) * 1000).format(
-                            'MMMM D YYYY h:mm'
-                          )}
-                        </span>
-                        <span className="table-row-column">
-                          {calculatePrice(item.price)}&nbsp;ETH
-                        </span>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            )}
-        </div>
+        <CatAdoptionDetail cat={cat} />
       </Modal>
       <Modal open={isModalOpen} handleClose={handleModalClose}>
-        <div
-          className={`adoption ${activeOffer && 'offer'} ${
-            activeRequest && 'request'
-          }`}
-        >
-          {cat.isWrapped && (
-            <div className="adoption__item">
-              <h3>Wrapped</h3>
-              <p>Too bad...</p>
-            </div>
-          )}
-          {cat.isWrapped && activeOffer && (
-            <div className="adoption__item">
-              <h3>Offer</h3>
-              <p>
-                Owner of this cat is offering &nbsp;
-                {activeOffer.to != ethers.constants.AddressZero ? (
-                  <a
-                    target="blank"
-                    rel="noreferrer"
-                    href={`https://etherscan.io/address/${activeOffer.to}`}
-                  >
-                    {activeOffer.to}
-                  </a>
-                ) : (
-                  'everyone'
-                )}
-                , to buy it from them for {calculatePrice(activeOffer.price)}{' '}
-                ETH
-              </p>
-            </div>
-          )}
-          {activeRequest && (
-            <div className="adoption__item">
-              <h3>Request</h3>
-              <p>
-                <a
-                  target="blank"
-                  rel="noreferrer"
-                  href={`https://etherscan.io/address/${activeRequest.from}`}
-                >
-                  {activeRequest.from}
-                </a>{' '}
-                likes this cat, and they want to buy it for&nbsp;
-                {calculatePrice(activeRequest.price)} ETH
-                {activeOffer?.to.toLowerCase() == WRAPPER &&
-                  '... shame it is wrapped :('}
-              </p>
-            </div>
-          )}
-        </div>
+        <CatAdoptionRequest cat={cat} />
       </Modal>
     </>
   );

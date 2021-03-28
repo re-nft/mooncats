@@ -10,7 +10,7 @@ import {
   queryAllRequests,
   queryAllOffers,
 } from './queries';
-import { Cat, CatInfo, AdoptionRequest, AdoptionOffer } from './types';
+import { Cat, AdoptionRequest, AdoptionOffer } from './types';
 import { ENDPOINT_MOONCAT_PROD } from '../../lib/consts';
 
 type GraphContextType = {
@@ -34,7 +34,6 @@ const DefaultGraphContext: GraphContextType = {
   allMoonCats: [],
   allRequests: [],
   allOffers: [],
-  // catInfo: {},
   isDataLoading: false,
   // @ts-ignore
   fetchAllMoonCats: () => {
@@ -66,7 +65,6 @@ export const GraphProvider: React.FC = ({ children }) => {
   const [allMoonCats, _] = useState<Cat[]>([]);
   const [allRequests, setAllRequests] = useState<AdoptionRequest[]>([]);
   const [allOffers, setAllOffers] = useState<AdoptionOffer[]>([]);
-  // const [catInfo, setCatInfo] = useState<Record<string, CatInfo>>({});
 
   const fetchMyMoonCats = async () => {
     if (!currentAddress) return;
