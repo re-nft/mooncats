@@ -36,6 +36,6 @@ export type CatInfo = {
   color: string;
   palette: string;
   pattern: number;
-  statisticalRank: string;
-  traitRarityRank: string;
+  statisticalRank: number;
+  traitRarityRank: number;
 };
