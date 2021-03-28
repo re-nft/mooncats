@@ -92,8 +92,8 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   const handleFetchOffers = useCallback(async () => {
     setIsLoading(true);
     const yOffset = window.pageYOffset;
-    await fetchAllOffers(FETCH_ALL_OFFERS_TAKE - 700, currentSkipCount);
-    setCurrentSkipCount((prevSkip) => prevSkip + 200);
+    await fetchAllOffers(FETCH_ALL_OFFERS_TAKE, currentSkipCount);
+    setCurrentSkipCount((prevSkip) => prevSkip + FETCH_ALL_OFFERS_TAKE);
     setIsLoading(false);
     window.scrollTo(0, yOffset);
   }, [currentSkipCount]);
