@@ -38,7 +38,7 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
   const [_, setCurrentCatPrice] = useState<string>();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [skipCount, setSkipCount] = useState<number>(240);
+  const [skipCount, setSkipCount] = useState<number>(120);
   const [showFilters, setShowFilters] = useState<WrappedFilters>(
     WrappedFilters.ALL
   );
@@ -195,7 +195,7 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
 };
 
 export async function getStaticProps() {
-  const fetchCatsQuery = queryAllCats(FETCH_ALL_CATS_TAKE * 2, 0);
+  const fetchCatsQuery = queryAllCats(FETCH_ALL_CATS_TAKE * 1, 0);
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, fetchCatsQuery);
   return {
     props: { cats },
