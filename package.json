@@ -20,7 +20,7 @@
     "@types/url-parse": "^1.4.3",
     "axios": "^0.21.1",
     "bl": "^4.1.0",
-    "canvas": "^2.7.0",
+    "canvas": "^2.6.0",
     "cids": "^1.1.5",
     "classnames": "^2.2.6",
     "dotenv": "^8.2.0",
