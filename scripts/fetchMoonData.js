@@ -4,7 +4,7 @@
 const axios = require('axios');
 const path = require('path');
 const { promises: fs } = require('fs');
-const DATA_PATH = path.resolve(__dirname, '../', 'public', 'data.json');
+const DATA_PATH = path.resolve('./public', 'data.json');
 
 (async function () {
   try {
