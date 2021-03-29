@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const axios = require('axios');
 const path = require('path');
-const { promises: fs } = require('fs');
+const fs = require('fs-extra');
 const DATA_PATH = path.resolve('./public', 'data.json');
 
 (async function () {
@@ -39,7 +39,7 @@ const DATA_PATH = path.resolve('./public', 'data.json');
       return acc;
     }, []);
 
-    if (await fs.stat(DATA_PATH)) await fs.unlink(DATA_PATH);
+    if (await fs.pathExists(DATA_PATH)) await fs.unlink(DATA_PATH);
 
     await fs.writeFile(
       DATA_PATH,
