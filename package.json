@@ -74,7 +74,6 @@
     "Fairlaunch"
   ],
   "scripts": {
-    "preinstall": "yum install libuuid-devel libmount-devel zlib-1.2.9 && cp /lib64/{libuuid,libmount,libblkid,libz}.so.1 node_modules/canvas/build/Release/",
     "prebuild": "./scripts/prebuild.sh",
     "start": "next start",
     "dev": "next dev",
