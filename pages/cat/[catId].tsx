@@ -3,7 +3,7 @@ import request from 'graphql-request';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
-import { Cat, CatInfo } from '../../contexts/graph/types';
+import { Cat, CatInfoData } from '../../contexts/graph/types';
 import { queryAllCats, queryCatById } from '../../contexts/graph/queries';
 
 import Loader from '../../components/ui/loader';
@@ -22,7 +22,9 @@ const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
   cat,
   catImage,
 }) => {
-  const info = (catInfo as Array<CatInfo>).find((cIn) => cIn.catId === cat.id);
+  const info = (catInfo as CatInfoData)['data'].find(
+    (cIn) => cIn.catId === cat.id
+  );
   return (
     <div className="cat-overview">
       <div className="item pic">

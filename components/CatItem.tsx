@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import NextLink from 'next/link';
 import { ethers } from 'ethers';
-import { Cat, CatInfo } from '../contexts/graph/types';
+import { Cat, CatInfoData } from '../contexts/graph/types';
 import { WRAPPER, hexToAscii, calculatePrice, drawCat } from '../utils';
 import Modal from './ui/modal';
 import moment from 'moment';
@@ -164,7 +164,8 @@ const CatItem: React.FC<CatItemProps> = ({ cat, onClick, children }) => {
   }, [cat, onClick]);
 
   const catInfoInd = useMemo(
-    () => (catInfo as Array<CatInfo>).find((cInd) => cInd.catId === cat.id),
+    () =>
+      (catInfo as CatInfoData)['data'].find((cInd) => cInd.catId === cat.id),
     [catInfo, cat.id]
   );
 

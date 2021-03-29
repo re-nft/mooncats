@@ -31,11 +31,17 @@ export type Cat = {
   };
 };
 
+export type CatInfoData = {
+  created_at: string;
+  data: CatInfo[];
+};
+
 export type CatInfo = {
+  row: string;
   catId: string;
   color: string;
   palette: string;
-  pattern: number;
-  statisticalRank: number;
-  traitRarityRank: number;
+  pattern: string;
+  statisticalRank: string;
+  traitRarityRank: string;
 };
