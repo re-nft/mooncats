@@ -75,7 +75,7 @@
     "prebuild": "./scripts/prebuild.sh",
     "start": "next start",
     "dev": "next dev",
-    "build": "next build --output build",
+    "build": "next build",
     "test": "next test",
     "eject": "next eject",
     "lint": "eslint --ext .ts,.tsx",
