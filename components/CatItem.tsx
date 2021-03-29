@@ -154,7 +154,7 @@ const CatItem: React.FC<CatItemProps> = ({ cat, onClick, children }) => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [isHistoryModalOpen, setHistoryModalOpen] = useState<boolean>(false);
   const { id, name, activeOffer, activeRequest, provenance } = cat;
-  const img = drawCat(id, 10);
+  const img = drawCat(id);
 
   const handleModalOpen = useCallback(() => setModalOpen(true), []);
   const handleModalClose = useCallback(() => setModalOpen(false), []);
@@ -166,7 +166,7 @@ const CatItem: React.FC<CatItemProps> = ({ cat, onClick, children }) => {
   const catInfoInd = useMemo(
     () =>
       (catInfo as CatInfoData)['data'].find((cInd) => cInd.catId === cat.id),
-    [catInfo, cat.id]
+    [catInfo.data, cat.id]
   );
 
   return (

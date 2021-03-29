@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import fs from 'fs-extra';
+import path from 'path';
+import { useState, useEffect, memo, useMemo } from 'react';
 import request from 'graphql-request';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import axios from 'axios';
 
 import { Cat, CatInfoData } from '../../contexts/graph/types';
 import { queryAllCats, queryCatById } from '../../contexts/graph/queries';
@@ -14,9 +17,10 @@ import {
   CatAdoptionRequest,
 } from '../../components/CatItem';
 
-import { drawCat } from '../../utils';
 import { ENDPOINT_MOONCAT_PROD, HOME_URL } from '../../lib/consts';
 import catInfo from '../../public/data.json';
+import { GetServerSideProps, GetStaticProps } from 'next';
+import { drawCat } from '../../utils';
 
 const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
   cat,
@@ -66,47 +70,46 @@ const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
   );
 };
 
-const ShowCatById: React.FC<{ cat: Cat }> = ({ cat }) => {
+const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
+  cat,
+  catImage,
+}) => {
   const {
     query: { catId },
     isFallback,
   } = useRouter();
 
-  const [catImage, setCatImage] = useState<string>(undefined);
-
-  useEffect(() => {
-    let isUnmounted = false;
-    if (cat) {
-      const image = drawCat(catId as string, 10);
-      image && !isUnmounted && setCatImage(image);
-    }
-    return () => {
-      isUnmounted = true;
-    };
-  }, [cat]);
+  const catImageURL = useMemo(
+    () =>
+      typeof window !== undefined && catImage ? `${HOME_URL}${catImage}` : null,
+    [catImage]
+  );
 
   return (
-    <div className="content">
+    <>
       <Head>
         <title>reNFT - Cat {catId}</title>
+        <meta property="og:title" />
         <meta property="og:url" content={`${HOME_URL}/cat/${catId}`} />
-        {catImage && (
+        {catImageURL && (
           <>
-            <meta property="og:image" content={catImage} />
-            <meta property="og:image_secure_url" content={catImage} />
-            <meta property="twitter:image" content={catImage} />
+            <meta property="og:image" content={catImageURL} />
+            <meta property="og:image_secure_url" content={catImageURL} />
+            <meta property="twitter:image" content={catImageURL} />
           </>
         )}
       </Head>
-      <div className="content center">
-        {isFallback ? (
-          <Loader />
-        ) : (
-          <CatOverview cat={cat} catImage={catImage} />
-        )}
+      <div className="content">
+        <div className="content center">
+          {isFallback ? (
+            <Loader />
+          ) : (
+            <CatOverview cat={cat} catImage={catImage} />
+          )}
+        </div>
+        <SearchCatById buttonText="Show me another cat" />
       </div>
-      <SearchCatById buttonText="Show me another cat" />
-    </div>
+    </>
   );
 };
 
@@ -123,10 +126,22 @@ export async function getStaticPaths() {
   };
 }
 
-export async function getStaticProps({ params: { catId } }) {
+export const getStaticProps: GetStaticProps<
+  {
+    cat: Cat;
+    catImage: string | null;
+  },
+  { catId: string }
+> = async ({ params: { catId } }) => {
   const catByIdQuery = queryCatById(catId);
+  const image = drawCat(catId, true);
+  const [_, base64Data] = image.split(',');
+  if (!(await fs.pathExists(`public/cats/${catId}.png`))) {
+    console.log('CAT ID IMAGE STORED');
+    await fs.writeFile(`public/cats/${catId}.png`, base64Data, 'base64');
+  }
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
-  return { props: { cat: cats[0] || {} } };
-}
+  return { props: { cat: cats[0] || {}, catImage: `/cats/${catId}.png` } };
+};
 
-export default React.memo(ShowCatById);
+export default memo(ShowCatById);

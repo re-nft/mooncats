@@ -32,3 +32,4 @@ yarn-error.log*
 .todo.swp
 .husky
 public/data.json
+public/cats

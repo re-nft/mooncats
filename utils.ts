@@ -1,4 +1,5 @@
 import mooncatparser from './lib/mooncatparser';
+import canvas, { createCanvas } from 'canvas';
 
 export const short = (s: string): string =>
   `${s.substr(0, 5)}...${s.substr(s.length - 5, 5)}`;
@@ -50,20 +51,32 @@ export const hexToAscii = (str1: string): string => {
 export const calculatePrice = (price: string): number =>
   Number(price) / 1000000 / 1000000 / 1000000;
 
-export function drawCat(catId: string, size: number): string {
-  size = size || 10;
+export function drawCat(
+  catId: string,
+  isSSR: boolean = false,
+  size: number = 10
+): string {
   const data = mooncatparser(catId);
-  const canvas = document.createElement('canvas');
-  canvas.width = size * data.length;
-  canvas.height = size * data[1].length;
+  const width = size * data.length;
+  const height = size * data[1].length;
+  const canvas = isSSR
+    ? createCanvas(width, height)
+    : document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext('2d');
 
   for (let i = 0; i < data.length; i++) {
     for (let j = 0; j < data[i].length; j++) {
       const color = data[i][j];
       if (color && ctx) {
-        ctx.fillStyle = color;
-        ctx.fillRect(i * size, j * size, size, size);
+        (ctx as CanvasRenderingContext2D).fillStyle = color;
+        (ctx as CanvasRenderingContext2D).fillRect(
+          i * size,
+          j * size,
+          size,
+          size
+        );
       }
     }
   }
