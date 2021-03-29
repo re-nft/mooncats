@@ -1,10 +1,10 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { useState, useEffect, memo, useMemo } from 'react';
+import { GetStaticProps } from 'next';
+import { memo, useMemo } from 'react';
 import request from 'graphql-request';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
 
 import { Cat, CatInfoData } from '../../contexts/graph/types';
 import { queryAllCats, queryCatById } from '../../contexts/graph/queries';
@@ -19,7 +19,6 @@ import {
 
 import { ENDPOINT_MOONCAT_PROD, HOME_URL } from '../../lib/consts';
 import catInfo from '../../public/data.json';
-import { GetServerSideProps, GetStaticProps } from 'next';
 import { drawCat } from '../../utils';
 
 const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
@@ -135,10 +134,11 @@ export const getStaticProps: GetStaticProps<
 > = async ({ params: { catId } }) => {
   const catByIdQuery = queryCatById(catId);
   const image = drawCat(catId, true);
+  const catImagePath = path.resolve(`./public`, `cats`, `${catId}.png`);
   const [_, base64Data] = image.split(',');
-  if (!(await fs.pathExists(`public/cats/${catId}.png`))) {
+  if (!(await fs.pathExists(catImagePath))) {
     console.log('CAT ID IMAGE STORED');
-    await fs.writeFile(`public/cats/${catId}.png`, base64Data, 'base64');
+    await fs.writeFile(catImagePath, base64Data, 'base64');
   }
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
   return { props: { cat: cats[0] || {}, catImage: `/cats/${catId}.png` } };
