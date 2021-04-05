@@ -134,10 +134,8 @@ export const getStaticProps: GetStaticProps<
   const catDirPath = path.resolve(`./public`, `cats`);
   const [_, base64Data] = image.split(',');
   await fs.mkdirp(catDirPath);
-  if (!(await fs.pathExists(catImagePath))) {
-    console.log('CAT ID IMAGE STORED');
-    await fs.writeFile(catImagePath, base64Data, 'base64');
-  }
+  !(await fs.pathExists(catImagePath)) &&
+    (await fs.writeFile(catImagePath, base64Data, 'base64'));
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
   return { props: { cat: cats[0] || {}, catImage: `/cats/${catId}.png` } };
 };

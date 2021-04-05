@@ -45,8 +45,6 @@ const DATA_PATH = path.resolve('./public', 'data.json');
       DATA_PATH,
       JSON.stringify({ created_at: new Date().toISOString(), data })
     );
-
-    console.log('done :)');
   } catch (err) {
     console.warn(err);
     await fs.writeFile(
