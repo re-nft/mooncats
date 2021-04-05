@@ -10,6 +10,7 @@ import { Symfoni } from '../hardhat/SymfoniContext';
 
 import '../styles/reset.scss';
 import '../styles/index.scss';
+import { HOME_URL } from '../lib/consts';
 
 const theme = createMuiTheme({
   typography: {
@@ -30,12 +31,15 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta property="og:description" content="reNFTs MoonCat Base" />
-        <meta property="og:title" content="MoonCat Rescue Shop" />
-        <meta property="twitter:description" content="reNFTs MoonCat Base" />
-        <meta property="twitter:title" content="MoonCat Rescue Shop" />
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:site" content="@renftlabs" />
+        <meta name="og:description" content="reNFTs MoonCat Base" />
+        <meta name="og:title" content="MoonCat Rescue Shop" />
+        <meta name="og:image" content={`${HOME_URL}/logo512.png`} />
+        <meta name="og:image_secure_url" content={`${HOME_URL}/logo512.png`} />
+        <meta name="twitter:description" content="reNFTs MoonCat Base" />
+        <meta name="twitter:title" content="MoonCat Rescue Shop" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@renftlabs" />
+        <meta name="twitter:image" content={`${HOME_URL}/logo512.png`} />
       </Head>
       <Symfoni>
         <MooncatsProvider>

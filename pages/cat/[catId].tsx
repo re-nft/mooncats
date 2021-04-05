@@ -80,7 +80,7 @@ const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
 
   const catImageURL = useMemo(
     () =>
-      typeof window !== undefined && catImage ? `${HOME_URL}${catImage}` : null,
+      typeof window !== undefined && catImage ? `${HOME_URL}${catImage}` : '',
     [catImage]
   );
 
@@ -88,15 +88,11 @@ const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
     <>
       <Head>
         <title>reNFT - Cat {catId}</title>
-        <meta property="og:title" />
-        <meta property="og:url" content={`${HOME_URL}/cat/${catId}`} />
-        {catImageURL && (
-          <>
-            <meta property="og:image" content={catImageURL} />
-            <meta property="og:image_secure_url" content={catImageURL} />
-            <meta property="twitter:image" content={catImageURL} />
-          </>
-        )}
+        <meta name="og:title" />
+        <meta name="og:url" content={`${HOME_URL}/cat/${catId}`} />
+        <meta name="og:image" content={catImageURL} />
+        <meta name="og:image_secure_url" content={catImageURL} />
+        <meta name="twitter:image" content={catImageURL} />
       </Head>
       <div className="content">
         <div className="content center">
