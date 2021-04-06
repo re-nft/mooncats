@@ -40,7 +40,6 @@ export const MyCatsRequests: React.FC<{ allRequests: AdoptionRequest[] }> = ({
       );
       const catsIds = myRequests.map((item) => item.id.split('::')[0]);
       Promise.all(catsIds.map((catId) => fetchCatById(catId))).then((cats) => {
-        // @ts-ignore
         setCats(cats);
       });
     }

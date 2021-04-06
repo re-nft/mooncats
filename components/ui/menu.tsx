@@ -20,12 +20,12 @@ const routes = [
   {
     pathname: '/my-requests',
     routeName: 'my-requests',
-    value: 'My requests',
+    value: 'My Requests',
   },
   {
     pathname: '/cat/default',
     routeName: 'default-cat',
-    value: 'show cat by id',
+    value: 'Show Cat By ID',
   },
 ];
 

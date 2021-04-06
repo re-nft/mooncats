@@ -1,8 +1,11 @@
 import mooncatparser from './lib/mooncatparser';
-import canvas, { createCanvas } from 'canvas';
+import { createCanvas } from 'canvas';
 
 export const short = (s: string): string =>
   `${s.substr(0, 5)}...${s.substr(s.length - 5, 5)}`;
+
+export const getDateTime = (timeStamp: string): number =>
+  new Date(parseInt(timeStamp, 10) * 100).getTime();
 
 export const THROWS = (): void => {
   throw new Error('must be implemented');

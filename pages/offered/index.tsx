@@ -2,7 +2,7 @@ import request from 'graphql-request';
 import Head from 'next/head';
 import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { ethers } from 'ethers';
-import { calculatePrice } from '../../utils';
+import { calculatePrice, getDateTime } from '../../utils';
 
 import GraphContext from '../../contexts/graph/index';
 import { Cat, AdoptionOffer } from '../../contexts/graph/types';
@@ -42,32 +42,19 @@ const sortFn: Record<
     offerA: AdoptionOffer,
     offerB: AdoptionOffer
   ) => {
-    // @ts-ignore
-    return offerB.price - offerA.price;
+    return parseInt(offerB.price, 10) - parseInt(offerA.price, 10);
   },
   [OffereSortType.CHEAPEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
-    // @ts-ignore
-    return offerA.price - offerB.price;
+    return parseInt(offerA.price, 10) - parseInt(offerB.price, 10);
   },
   [OffereSortType.RECENTLY_LISTED]: (
     offerA: AdoptionOffer,
     offerB: AdoptionOffer
   ) => {
-    return (
-      // @ts-ignore
-      new Date(Number(offerB.timestamp) * 100) -
-      // @ts-ignore
-      new Date(Number(offerA.timestamp) * 100)
-    );
+    return getDateTime(offerB.timestamp) - getDateTime(offerA.timestamp);
   },
-  [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
-    return (
-      // @ts-ignore
-      new Date(Number(offerA.timestamp) * 100) -
-      // @ts-ignore
-      new Date(Number(offerB.timestamp) * 100)
-    );
-  },
+  [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) =>
+    getDateTime(offerA.timestamp) - getDateTime(offerB.timestamp),
 };
 
 const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
@@ -157,12 +144,10 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
             {Object.entries(sortTypes).map(([type, title]) => (
               <button
                 key={type}
-                // @ts-ignore
                 className={`nft__button ${
                   currentSortType === type && 'nft__button__active'
                 }`}
-                // @ts-ignore
-                onClick={() => handleSort(type)}
+                onClick={() => handleSort(type as OffereSortType)}
               >
                 {title}
               </button>
