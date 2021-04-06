@@ -120,16 +120,14 @@ export const getServerSideProps: GetServerSideProps<
   console.log('DRAWN CAT');
   const { origin, host } = absoluteURL(req);
   const catsPath =
-    host.includes('localhost') || host.includes('ngrok')
-      ? './public/cats'
-      : './cats';
+    host.includes('localhost') || host.includes('ngrok') ? './public/cats' : '';
   console.log('CATS PATH', catsPath);
   await fs.mkdirp(catsPath);
   const catImagePath = path.resolve(__dirname, catsPath, `${catId}.png`);
-
+  console.log('CATS IMAGE PATH', catImagePath);
   const [_, base64Data] = image.split(',');
   !(await fs.pathExists(catImagePath)) &&
-    (await fs.writeFile(catImagePath, base64Data, 'base64'));
+    (await fs.writeFile(catImagePath, base64Data, 'base64').catch(console.log));
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
 
   return {
