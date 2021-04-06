@@ -8,6 +8,7 @@ const DATA_PATH = path.resolve('./public', 'data.json');
 
 (async function () {
   try {
+    await fs.mkdirp(path.resolve('./public', 'cats'));
     console.log('fetching new mooncats !!');
     const { data: response } = await axios.get(
       'https://rarity.studio/files/new_mooncats.csv'
