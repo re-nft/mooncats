@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import moment from 'moment';
 import { GetStaticProps } from 'next';
 import { memo, useMemo } from 'react';
 import request from 'graphql-request';
@@ -42,6 +43,12 @@ const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
                 <CatListItem title="Color" value={info.color} />
                 <CatListItem title="Palette" value={info.palette} />
                 <CatListItem title="Pattern" value={info.pattern} />
+                <CatListItem
+                  title="Rescued on"
+                  value={moment(Number(cat.rescueTimestamp) * 1000).format(
+                    'MM/D/YY hh:mm'
+                  )}
+                />
                 <CatListItem
                   title="Statistical Rank"
                   value={info.statisticalRank}

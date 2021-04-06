@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useContext, useEffect } from 'react';
-import { calculatePrice, WRAPPER } from '../../utils';
+import { ethers } from 'ethers';
+import { calculatePrice } from '../../utils';
 
 import GraphContext from '../../contexts/graph/index';
 import { Cat, AdoptionOffer } from '../../contexts/graph/types';
@@ -228,9 +229,13 @@ export async function getStaticProps() {
     ENDPOINT_MOONCAT_PROD,
     offeredQuery
   );
+
   return {
     props: {
-      allOffers,
+      allOffers: allOffers.filter(
+        (offer: AdoptionOffer) =>
+          offer.to.toLowerCase() == ethers.constants.AddressZero
+      ),
     },
   };
 }

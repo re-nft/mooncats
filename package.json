@@ -62,7 +62,7 @@
   "scripts": {
     "prebuild": "./scripts/prebuild.sh",
     "start": "next start",
-    "dev": "next dev",
+    "dev": "yarn prebuild && next dev",
     "build": "next build",
     "test": "next test",
     "eject": "next eject",
