@@ -117,13 +117,15 @@ export const getServerSideProps: GetServerSideProps<
 > = async ({ req, params: { catId } }) => {
   const catByIdQuery = queryCatById(catId);
   const image = drawCat(catId, true);
+  console.log('DRAWN CAT');
   const { origin, host } = absoluteURL(req);
   const catsPath =
     host.includes('localhost') || host.includes('ngrok')
       ? './public/cats'
       : './cats';
-  const catImagePath = path.resolve(catsPath, `${catId}.png`);
+  console.log('CATS PATH', catsPath);
   await fs.mkdirp(catsPath);
+  const catImagePath = path.resolve(__dirname, catsPath, `${catId}.png`);
 
   const [_, base64Data] = image.split(',');
   !(await fs.pathExists(catImagePath)) &&
