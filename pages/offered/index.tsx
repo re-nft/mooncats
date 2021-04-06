@@ -1,4 +1,6 @@
-import React, { useState, useCallback, useContext, useEffect } from 'react';
+import request from 'graphql-request';
+import Head from 'next/head';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { ethers } from 'ethers';
 import { calculatePrice } from '../../utils';
 
@@ -12,9 +14,11 @@ import Modal from '../../components/ui/modal';
 import Loader from '../../components/ui/loader';
 
 import { queryAllOffers } from '../../contexts/graph/queries';
-import { ENDPOINT_MOONCAT_PROD, FETCH_ALL_OFFERS_TAKE } from '../../lib/consts';
-import request from 'graphql-request';
-import Head from 'next/head';
+import {
+  ENDPOINT_MOONCAT_PROD,
+  FETCH_ALL_OFFERS_TAKE,
+  FETCH_EVERY_OFFERS_TAKE,
+} from '../../lib/consts';
 
 enum OffereSortType {
   HIGH_PRICE = 'HIGH_PRICE',
@@ -70,7 +74,7 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   allOffers: ssrOffers,
 }) => {
   // Context
-  const { allOffers: csrOffers, fetchAllOffers } = useContext(GraphContext);
+  const { fetchAllOffers } = useContext(GraphContext);
   const { acceptOffer } = useContext(MooncatRescueContext);
 
   // State
@@ -89,20 +93,27 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
     false
   );
 
+  // Memoized values
+  const sortedOffer = useMemo(() => {
+    console.log('SORT TYPE CHANGED to ' + currentSortType);
+    return allOffers.sort(sortFn[currentSortType]);
+  }, [currentSortType, allOffers]);
+
   // Callbacks
   const handleFetchOffers = useCallback(async () => {
     setIsLoading(true);
-    const yOffset = window.pageYOffset;
-    await fetchAllOffers(FETCH_ALL_OFFERS_TAKE, currentSkipCount);
-    setCurrentSkipCount((prevSkip) => prevSkip + FETCH_ALL_OFFERS_TAKE);
+    const yOffset = window.pageYOffset + 100;
+    const offers = await fetchAllOffers(
+      FETCH_EVERY_OFFERS_TAKE,
+      currentSkipCount
+    );
+    setCurrentSkipCount((prevSkip) => prevSkip + FETCH_EVERY_OFFERS_TAKE);
+    setAllOffers((prevOffers) => [...prevOffers, ...offers]);
     setIsLoading(false);
     window.scrollTo(0, yOffset);
   }, [currentSkipCount]);
 
-  const handleSort = useCallback(
-    (sortType: OffereSortType) => setCurrentSortType(sortType),
-    []
-  );
+  const handleSort = (sortType: OffereSortType) => setCurrentSortType(sortType);
   const handleModalClose = useCallback(() => setOpenModal(false), []);
   const handleModalOpen = useCallback((offer: AdoptionOffer) => {
     setError(undefined);
@@ -134,18 +145,6 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
     }
   }, [currentOffer, handleModalClose, acceptOffer]);
 
-  useEffect(() => {
-    !isLoading && setAllOffers((prevOffers) => [...prevOffers, ...csrOffers]);
-  }, [isLoading]);
-
-  if (isLoading) {
-    return (
-      <div className="content center">
-        <Loader />
-      </div>
-    );
-  }
-  const sortedOffer = allOffers.slice(0).sort(sortFn[currentSortType]);
   return (
     <div className="content">
       <Head>
@@ -199,11 +198,15 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
         })}
       </div>
       {isCopiedSuccessfully && <CatNotifer />}
-      {!isLoading && (
+      {!isLoading ? (
         <div className="load-more">
           <button className="nft__button" onClick={handleFetchOffers}>
             Load more
           </button>
+        </div>
+      ) : (
+        <div className="content center">
+          <Loader />
         </div>
       )}
       <Modal open={isOpenModal} handleClose={handleModalClose}>

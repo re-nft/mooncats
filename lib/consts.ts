@@ -10,7 +10,8 @@ export const MAX_UINT256 =
 export const HOME_URL =
   typeof window !== 'undefined' ? window.location.origin : '';
 export const FETCH_ALL_CATS_TAKE = 120;
-export const FETCH_ALL_OFFERS_TAKE = 220;
+export const FETCH_EVERY_OFFERS_TAKE = 120;
+export const FETCH_ALL_OFFERS_TAKE = 720;
 export const ENDPOINT_MOONCAT_PROD =
   'https://api.thegraph.com/subgraphs/id/QmNTtZFaRTiqX3ZLuE86crx75nAYPydMsTyee95SUMyE9J';
 
