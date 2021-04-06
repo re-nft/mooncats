@@ -1,5 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
+import absoluteURL from 'next-absolute-url';
 import moment from 'moment';
 import { GetServerSideProps } from 'next';
 import { memo } from 'react';
@@ -116,15 +117,23 @@ export const getServerSideProps: GetServerSideProps<
 > = async ({ req, params: { catId } }) => {
   const catByIdQuery = queryCatById(catId);
   const image = drawCat(catId, true);
-  const catImagePath = path.resolve(`./public`, `cats`, `${catId}.png`);
+  const { origin, host } = absoluteURL(req);
+  const catsPath =
+    host.includes('localhost') || host.includes('ngrok')
+      ? './public/cats'
+      : './cats';
+  const catImagePath = path.resolve(catsPath, `${catId}.png`);
+  await fs.mkdirp(catsPath);
+
   const [_, base64Data] = image.split(',');
   !(await fs.pathExists(catImagePath)) &&
     (await fs.writeFile(catImagePath, base64Data, 'base64'));
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
+
   return {
     props: {
       cat: cats[0] || {},
-      catImage: `${req.headers['referer']}cats/${catId}.png`,
+      catImage: `${origin}/cats/${catId}.png`,
     },
   };
 };
