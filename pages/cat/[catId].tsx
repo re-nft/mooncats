@@ -1,14 +1,14 @@
 import fs from 'fs-extra';
 import path from 'path';
 import moment from 'moment';
-import { GetStaticProps } from 'next';
-import { memo, useMemo } from 'react';
+import { GetServerSideProps } from 'next';
+import { memo } from 'react';
 import request from 'graphql-request';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 
 import { Cat, CatInfoData } from '../../contexts/graph/types';
-import { queryAllCats, queryCatById } from '../../contexts/graph/queries';
+import { queryCatById } from '../../contexts/graph/queries';
 
 import Loader from '../../components/ui/loader';
 import SearchCatById from './default';
@@ -85,21 +85,13 @@ const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
     isFallback,
   } = useRouter();
 
-  const catImageURL = useMemo(
-    () =>
-      typeof window !== undefined && catImage ? `${HOME_URL}${catImage}` : '',
-    [catImage]
-  );
-
   return (
     <>
       <Head>
         <title>reNFT - Cat {catId}</title>
-        <meta name="og:title" />
+        <meta property="og:description" content="reNFTs Cat ID" />
+        <meta property="og:title" content="MoonCat Rescue Shop" />
         <meta name="og:url" content={`${HOME_URL}/cat/${catId}`} />
-        <meta name="og:image" content={catImageURL} />
-        <meta name="og:image_secure_url" content={catImageURL} />
-        <meta name="twitter:image" content={catImageURL} />
       </Head>
       <div className="content">
         <div className="content center">
@@ -115,26 +107,13 @@ const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
   );
 };
 
-export async function getStaticPaths() {
-  const allCatsQuery = queryAllCats(500, 0);
-  const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
-  const catIds = (cats as Cat[]).map((cat) => ({
-    params: { catId: cat.id },
-  }));
-
-  return {
-    paths: catIds,
-    fallback: true,
-  };
-}
-
-export const getStaticProps: GetStaticProps<
+export const getServerSideProps: GetServerSideProps<
   {
     cat: Cat;
     catImage: string | null;
   },
   { catId: string }
-> = async ({ params: { catId } }) => {
+> = async ({ req, params: { catId } }) => {
   const catByIdQuery = queryCatById(catId);
   const image = drawCat(catId, true);
   const catImagePath = path.resolve(`./public`, `cats`, `${catId}.png`);
@@ -142,7 +121,12 @@ export const getStaticProps: GetStaticProps<
   !(await fs.pathExists(catImagePath)) &&
     (await fs.writeFile(catImagePath, base64Data, 'base64'));
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
-  return { props: { cat: cats[0] || {}, catImage: `/cats/${catId}.png` } };
+  return {
+    props: {
+      cat: cats[0] || {},
+      catImage: `${req.headers['referer']}cats/${catId}.png`,
+    },
+  };
 };
 
 export default memo(ShowCatById);
