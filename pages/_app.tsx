@@ -25,21 +25,32 @@ const theme = createMuiTheme({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const { cat, catImageURL } = pageProps;
+  const metaDescription = cat?.id ? `Cat Id - ${cat.id}` : 'reNFT MoonCat Base';
+
+  const metaImage = catImageURL || HOME_URL + '/logo512.png';
+
+  const metaURL = `${typeof window !== undefined ? HOME_URL : ''}/${
+    cat?.id ? `cat/${cat.id}` : ''
+  }`;
+
   return (
     <>
       <Head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
-        <meta name="og:description" content="reNFTs MoonCat Base" />
-        <meta name="og:title" content="MoonCat Rescue Shop" />
-        <meta name="og:image" content={`${HOME_URL}/logo512.png`} />
-        <meta name="og:image_secure_url" content={`${HOME_URL}/logo512.png`} />
-        <meta name="twitter:description" content="reNFTs MoonCat Base" />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:title" content="MoonCat Rescue Shop" />
+        <meta property="og:url" content={metaURL} />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content={metaImage} />
+        <meta property="og:image_secure_url" content={metaImage} />
+        <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:title" content="MoonCat Rescue Shop" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@renftlabs" />
-        <meta name="twitter:image" content={`${HOME_URL}/logo512.png`} />
+        <meta name="twitter:image" content={metaImage} />
       </Head>
       <Symfoni>
         <MooncatsProvider>

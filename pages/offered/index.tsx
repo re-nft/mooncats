@@ -1,5 +1,8 @@
-import React, { useState, useCallback, useContext, useEffect } from 'react';
-import { calculatePrice, WRAPPER } from '../../utils';
+import request from 'graphql-request';
+import Head from 'next/head';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
+import { ethers } from 'ethers';
+import { calculatePrice, getDateTime } from '../../utils';
 
 import GraphContext from '../../contexts/graph/index';
 import { Cat, AdoptionOffer } from '../../contexts/graph/types';
@@ -11,9 +14,11 @@ import Modal from '../../components/ui/modal';
 import Loader from '../../components/ui/loader';
 
 import { queryAllOffers } from '../../contexts/graph/queries';
-import { ENDPOINT_MOONCAT_PROD, FETCH_ALL_OFFERS_TAKE } from '../../lib/consts';
-import request from 'graphql-request';
-import Head from 'next/head';
+import {
+  ENDPOINT_MOONCAT_PROD,
+  FETCH_ALL_OFFERS_TAKE,
+  FETCH_EVERY_OFFERS_TAKE,
+} from '../../lib/consts';
 
 enum OffereSortType {
   HIGH_PRICE = 'HIGH_PRICE',
@@ -37,39 +42,26 @@ const sortFn: Record<
     offerA: AdoptionOffer,
     offerB: AdoptionOffer
   ) => {
-    // @ts-ignore
-    return offerB.price - offerA.price;
+    return parseInt(offerB.price, 10) - parseInt(offerA.price, 10);
   },
   [OffereSortType.CHEAPEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
-    // @ts-ignore
-    return offerA.price - offerB.price;
+    return parseInt(offerA.price, 10) - parseInt(offerB.price, 10);
   },
   [OffereSortType.RECENTLY_LISTED]: (
     offerA: AdoptionOffer,
     offerB: AdoptionOffer
   ) => {
-    return (
-      // @ts-ignore
-      new Date(Number(offerB.timestamp) * 100) -
-      // @ts-ignore
-      new Date(Number(offerA.timestamp) * 100)
-    );
+    return getDateTime(offerB.timestamp) - getDateTime(offerA.timestamp);
   },
-  [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
-    return (
-      // @ts-ignore
-      new Date(Number(offerA.timestamp) * 100) -
-      // @ts-ignore
-      new Date(Number(offerB.timestamp) * 100)
-    );
-  },
+  [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) =>
+    getDateTime(offerA.timestamp) - getDateTime(offerB.timestamp),
 };
 
 const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   allOffers: ssrOffers,
 }) => {
   // Context
-  const { allOffers: csrOffers, fetchAllOffers } = useContext(GraphContext);
+  const { fetchAllOffers } = useContext(GraphContext);
   const { acceptOffer } = useContext(MooncatRescueContext);
 
   // State
@@ -88,20 +80,26 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
     false
   );
 
+  // Memoized values
+  const sortedOffer = useMemo(() => {
+    return allOffers.sort(sortFn[currentSortType]);
+  }, [currentSortType, allOffers]);
+
   // Callbacks
   const handleFetchOffers = useCallback(async () => {
     setIsLoading(true);
-    const yOffset = window.pageYOffset;
-    await fetchAllOffers(FETCH_ALL_OFFERS_TAKE, currentSkipCount);
-    setCurrentSkipCount((prevSkip) => prevSkip + FETCH_ALL_OFFERS_TAKE);
+    const yOffset = window.pageYOffset + 100;
+    const offers = await fetchAllOffers(
+      FETCH_EVERY_OFFERS_TAKE,
+      currentSkipCount
+    );
+    setCurrentSkipCount((prevSkip) => prevSkip + FETCH_EVERY_OFFERS_TAKE);
+    setAllOffers((prevOffers) => [...prevOffers, ...offers]);
     setIsLoading(false);
     window.scrollTo(0, yOffset);
   }, [currentSkipCount]);
 
-  const handleSort = useCallback(
-    (sortType: OffereSortType) => setCurrentSortType(sortType),
-    []
-  );
+  const handleSort = (sortType: OffereSortType) => setCurrentSortType(sortType);
   const handleModalClose = useCallback(() => setOpenModal(false), []);
   const handleModalOpen = useCallback((offer: AdoptionOffer) => {
     setError(undefined);
@@ -133,18 +131,6 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
     }
   }, [currentOffer, handleModalClose, acceptOffer]);
 
-  useEffect(() => {
-    !isLoading && setAllOffers((prevOffers) => [...prevOffers, ...csrOffers]);
-  }, [isLoading]);
-
-  if (isLoading) {
-    return (
-      <div className="content center">
-        <Loader />
-      </div>
-    );
-  }
-  const sortedOffer = allOffers.slice(0).sort(sortFn[currentSortType]);
   return (
     <div className="content">
       <Head>
@@ -157,12 +143,10 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
             {Object.entries(sortTypes).map(([type, title]) => (
               <button
                 key={type}
-                // @ts-ignore
                 className={`nft__button ${
                   currentSortType === type && 'nft__button__active'
                 }`}
-                // @ts-ignore
-                onClick={() => handleSort(type)}
+                onClick={() => handleSort(type as OffereSortType)}
               >
                 {title}
               </button>
@@ -198,11 +182,15 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
         })}
       </div>
       {isCopiedSuccessfully && <CatNotifer />}
-      {!isLoading && (
+      {!isLoading ? (
         <div className="load-more">
           <button className="nft__button" onClick={handleFetchOffers}>
             Load more
           </button>
+        </div>
+      ) : (
+        <div className="content center">
+          <Loader />
         </div>
       )}
       <Modal open={isOpenModal} handleClose={handleModalClose}>
@@ -228,9 +216,13 @@ export async function getStaticProps() {
     ENDPOINT_MOONCAT_PROD,
     offeredQuery
   );
+
   return {
     props: {
-      allOffers,
+      allOffers: allOffers.filter(
+        (offer: AdoptionOffer) =>
+          offer.to.toLowerCase() == ethers.constants.AddressZero
+      ),
     },
   };
 }

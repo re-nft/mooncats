@@ -19,7 +19,6 @@ type GraphContextType = {
   allRequests: AdoptionRequest[];
   allOffers: AdoptionOffer[];
   isDataLoading: boolean;
-  // catInfo: Record<string, CatInfo>;
   fetchCatById(catId: string): Promise<Cat | undefined>;
   fetchAllMoonCats(take: number, skip: number): Promise<Cat[] | undefined>;
   fetchMyMoonCats(): Promise<void>;
@@ -35,24 +34,13 @@ const DefaultGraphContext: GraphContextType = {
   allRequests: [],
   allOffers: [],
   isDataLoading: false,
-  // @ts-ignore
-  fetchAllMoonCats: () => {
+  fetchAllMoonCats: async (take: number, skip: number): Promise<Cat[]> => {
     return [];
   },
   fetchMyMoonCats: async () => {},
-  // @ts-ignore
-  fetchCatById: () => {
-    return [];
+  fetchCatById: async (catId: string): Promise<Cat | undefined> => {
+    return undefined;
   },
-  // @ts-ignore
-  fetchAllAdoptionAsks: () => {
-    return [];
-  },
-  // @ts-ignore
-  fetchAllAdoptionBids: () => {
-    return [];
-  },
-  // @ts-ignore
   fetchAllOffers: async () => [],
 };
 
@@ -118,7 +106,6 @@ export const GraphProvider: React.FC = ({ children }) => {
     skip: number
   ): Promise<AdoptionOffer[] | undefined> => {
     setDataLoading(false);
-    setAllOffers([]);
     if (!currentAddress) return;
     const query = queryAllOffers(take, skip);
     const subgraphURI = ENDPOINT_MOONCAT_PROD;

@@ -1,11 +1,15 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { request } from 'graphql-request';
 import { queryAllCats } from '../contexts/graph/queries';
-import { ENDPOINT_MOONCAT_PROD, FETCH_ALL_CATS_TAKE } from '../lib/consts';
+import {
+  ENDPOINT_MOONCAT_PROD,
+  FETCH_ALL_CATS_TAKE,
+  HOME_URL,
+} from '../lib/consts';
 
 import GraphContext from '../contexts/graph';
 import MooncatsContext from '../contexts/mooncats';
-import { Cat, CatInfo } from '../contexts/graph/types';
+import { Cat } from '../contexts/graph/types';
 import { CurrentAddressContext } from '../hardhat/SymfoniContext';
 
 import CatItem from '../components/CatItem';
@@ -152,6 +156,7 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
     <div className="content">
       <Head>
         <title>reNFT - All cats</title>
+        <meta property="og:url" content={HOME_URL} />
       </Head>
       <div className="content__row content__navigation">
         <div className="switch">

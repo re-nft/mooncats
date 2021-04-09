@@ -2,11 +2,18 @@ import React, { useState, useCallback, useMemo } from 'react';
 import NextLink from 'next/link';
 import { ethers } from 'ethers';
 import { Cat, CatInfoData } from '../contexts/graph/types';
-import { WRAPPER, hexToAscii, calculatePrice, drawCat } from '../utils';
+import {
+  WRAPPER,
+  hexToAscii,
+  calculatePrice,
+  drawCat,
+  getDateTime,
+} from '../utils';
 import Modal from './ui/modal';
 import moment from 'moment';
 import catInfo from '../public/data.json';
 
+type CatProp = { cat: Cat };
 interface CatItemProps {
   hasRescuerIdx?: boolean;
   rescuerId?: number;
@@ -31,7 +38,7 @@ export const CatListItem = ({
   );
 };
 
-export const CatAdoptionDetail: React.FC<{ cat: Cat }> = ({ cat }) => {
+export const CatAdoptionDetail: React.FC<CatProp> = ({ cat }) => {
   const { provenance } = cat;
   return (
     <div className="adoption">
@@ -41,11 +48,7 @@ export const CatAdoptionDetail: React.FC<{ cat: Cat }> = ({ cat }) => {
           <ul className="adoption__item_table">
             {provenance.offerPrices
               .sort(
-                (a, b) =>
-                  //@ts-ignore
-                  new Date(Number(a.timestamp) * 100) -
-                  //@ts-ignore
-                  new Date(Number(b.timestamp) * 100)
+                (a, b) => getDateTime(a.timestamp) - getDateTime(b.timestamp)
               )
               .map((item) => (
                 <li className="table-row" key={item.timestamp}>
@@ -66,14 +69,9 @@ export const CatAdoptionDetail: React.FC<{ cat: Cat }> = ({ cat }) => {
         <div className="adoption__item">
           <h3>Historical Request Prices</h3>
           <ul className="adoption__item_table">
-            {/* @ts-ignore */}
             {provenance.requestPrices
               .sort(
-                (a, b) =>
-                  //@ts-ignore
-                  new Date(Number(a.timestamp) * 100) -
-                  //@ts-ignore
-                  new Date(Number(b.timestamp) * 100)
+                (a, b) => getDateTime(a.timestamp) - getDateTime(b.timestamp)
               )
               .map((item) => (
                 <li className="table-row" key={item.timestamp}>
@@ -94,7 +92,7 @@ export const CatAdoptionDetail: React.FC<{ cat: Cat }> = ({ cat }) => {
   );
 };
 
-export const CatAdoptionRequest: React.FC<{ cat: Cat }> = ({ cat }) => {
+export const CatAdoptionRequest: React.FC<CatProp> = ({ cat }) => {
   const { activeOffer, activeRequest } = cat;
   return (
     <div

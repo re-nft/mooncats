@@ -1,13 +1,12 @@
-import fs from 'fs-extra';
-import path from 'path';
-import { GetStaticProps } from 'next';
-import { memo, useMemo } from 'react';
-import request from 'graphql-request';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { GetStaticProps } from 'next';
+import moment from 'moment';
+import request from 'graphql-request';
+import { memo } from 'react';
+import { useRouter } from 'next/router';
 
 import { Cat, CatInfoData } from '../../contexts/graph/types';
-import { queryAllCats, queryCatById } from '../../contexts/graph/queries';
+import { queryCatById, queryAllCats } from '../../contexts/graph/queries';
 
 import Loader from '../../components/ui/loader';
 import SearchCatById from './default';
@@ -19,9 +18,16 @@ import {
 
 import { ENDPOINT_MOONCAT_PROD, HOME_URL } from '../../lib/consts';
 import catInfo from '../../public/data.json';
+import { storage } from '../../lib/firebase';
 import { drawCat } from '../../utils';
 
-const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
+type IndividualCatProps = {
+  cat: Cat;
+  catImage: string | null;
+  catImageURL: string;
+};
+
+const CatOverview: React.FC<Omit<IndividualCatProps, 'catImageURL'>> = ({
   cat,
   catImage,
 }) => {
@@ -42,6 +48,12 @@ const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
                 <CatListItem title="Color" value={info.color} />
                 <CatListItem title="Palette" value={info.palette} />
                 <CatListItem title="Pattern" value={info.pattern} />
+                <CatListItem
+                  title="Rescued on"
+                  value={moment(Number(cat.rescueTimestamp) * 1000).format(
+                    'MM/D/YY hh:mm'
+                  )}
+                />
                 <CatListItem
                   title="Statistical Rank"
                   value={info.statisticalRank}
@@ -69,30 +81,19 @@ const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
   );
 };
 
-const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
-  cat,
-  catImage,
-}) => {
+const ShowCatById: React.FC<IndividualCatProps> = ({ cat, catImage }) => {
   const {
     query: { catId },
     isFallback,
   } = useRouter();
 
-  const catImageURL = useMemo(
-    () =>
-      typeof window !== undefined && catImage ? `${HOME_URL}${catImage}` : '',
-    [catImage]
-  );
-
   return (
     <>
       <Head>
         <title>reNFT - Cat {catId}</title>
-        <meta name="og:title" />
+        <meta property="og:description" content="reNFTs Cat ID" />
+        <meta property="og:title" content="MoonCat Rescue Shop" />
         <meta name="og:url" content={`${HOME_URL}/cat/${catId}`} />
-        <meta name="og:image" content={catImageURL} />
-        <meta name="og:image_secure_url" content={catImageURL} />
-        <meta name="twitter:image" content={catImageURL} />
       </Head>
       <div className="content">
         <div className="content center">
@@ -109,7 +110,7 @@ const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
 };
 
 export async function getStaticPaths() {
-  const allCatsQuery = queryAllCats(500, 0);
+  const allCatsQuery = queryAllCats(100, 0);
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
   const catIds = (cats as Cat[]).map((cat) => ({
     params: { catId: cat.id },
@@ -122,22 +123,17 @@ export async function getStaticPaths() {
 }
 
 export const getStaticProps: GetStaticProps<
-  {
-    cat: Cat;
-    catImage: string | null;
-  },
+  IndividualCatProps,
   { catId: string }
 > = async ({ params: { catId } }) => {
   const catByIdQuery = queryCatById(catId);
-  const image = drawCat(catId, true);
-  const catImagePath = path.resolve(`./public`, `cats`, `${catId}.png`);
-  const catDirPath = path.resolve(`./public`, `cats`);
-  const [_, base64Data] = image.split(',');
-  await fs.mkdirp(catDirPath);
-  !(await fs.pathExists(catImagePath)) &&
-    (await fs.writeFile(catImagePath, base64Data, 'base64'));
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
-  return { props: { cat: cats[0] || {}, catImage: `/cats/${catId}.png` } };
+  const downloadURL = await storage
+    .ref()
+    .child(`cats/${catId}.png`)
+    .getDownloadURL();
+  const catImage = drawCat(catId, true);
+  return { props: { cat: cats[0] || {}, catImageURL: downloadURL, catImage } };
 };
 
 export default memo(ShowCatById);
