@@ -1,15 +1,12 @@
-import fs from 'fs-extra';
-import path from 'path';
-import absoluteURL from 'next-absolute-url';
-import moment from 'moment';
-import { GetServerSideProps } from 'next';
-import { memo } from 'react';
-import request from 'graphql-request';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { GetStaticProps } from 'next';
+import moment from 'moment';
+import request from 'graphql-request';
+import { memo } from 'react';
+import { useRouter } from 'next/router';
 
 import { Cat, CatInfoData } from '../../contexts/graph/types';
-import { queryCatById } from '../../contexts/graph/queries';
+import { queryCatById, queryAllCats } from '../../contexts/graph/queries';
 
 import Loader from '../../components/ui/loader';
 import SearchCatById from './default';
@@ -21,9 +18,16 @@ import {
 
 import { ENDPOINT_MOONCAT_PROD, HOME_URL } from '../../lib/consts';
 import catInfo from '../../public/data.json';
+import { storage } from '../../lib/firebase';
 import { drawCat } from '../../utils';
 
-const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
+type IndividualCatProps = {
+  cat: Cat;
+  catImage: string | null;
+  catImageURL: string;
+};
+
+const CatOverview: React.FC<Omit<IndividualCatProps, 'catImageURL'>> = ({
   cat,
   catImage,
 }) => {
@@ -77,10 +81,7 @@ const CatOverview: React.FC<{ cat: Cat; catImage: string }> = ({
   );
 };
 
-const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
-  cat,
-  catImage,
-}) => {
+const ShowCatById: React.FC<IndividualCatProps> = ({ cat, catImage }) => {
   const {
     query: { catId },
     isFallback,
@@ -108,34 +109,31 @@ const ShowCatById: React.FC<{ cat: Cat; catImage: string | null }> = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps<
-  {
-    cat: Cat;
-    catImage: string | null;
-  },
-  { catId: string }
-> = async ({ req, params: { catId } }) => {
-  const catByIdQuery = queryCatById(catId);
-  const image = drawCat(catId, true);
-  console.log('DRAWN CAT');
-  const { origin, host } = absoluteURL(req);
-  const catsPath =
-    host.includes('localhost') || host.includes('ngrok') ? './public/cats' : '';
-  console.log('CATS PATH', catsPath);
-  await fs.mkdirp(catsPath);
-  const catImagePath = path.resolve(__dirname, catsPath, `${catId}.png`);
-  console.log('CATS IMAGE PATH', catImagePath);
-  const [_, base64Data] = image.split(',');
-  !(await fs.pathExists(catImagePath)) &&
-    (await fs.writeFile(catImagePath, base64Data, 'base64').catch(console.log));
-  const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
+export async function getStaticPaths() {
+  const allCatsQuery = queryAllCats(100, 0);
+  const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
+  const catIds = (cats as Cat[]).map((cat) => ({
+    params: { catId: cat.id },
+  }));
 
   return {
-    props: {
-      cat: cats[0] || {},
-      catImage: `${origin}/cats/${catId}.png`,
-    },
+    paths: catIds,
+    fallback: true,
   };
+}
+
+export const getStaticProps: GetStaticProps<
+  IndividualCatProps,
+  { catId: string }
+> = async ({ params: { catId } }) => {
+  const catByIdQuery = queryCatById(catId);
+  const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
+  const downloadURL = await storage
+    .ref()
+    .child(`cats/${catId}.png`)
+    .getDownloadURL();
+  const catImage = drawCat(catId, true);
+  return { props: { cat: cats[0] || {}, catImageURL: downloadURL, catImage } };
 };
 
 export default memo(ShowCatById);

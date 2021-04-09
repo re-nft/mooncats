@@ -25,15 +25,14 @@ const theme = createMuiTheme({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const { cat, catImage } = pageProps;
-
+  const { cat, catImageURL } = pageProps;
   const metaDescription = cat?.id
     ? `Cat Id - ${cat.id}`
     : 'reNFTs MoonCat Base';
 
-  const metaImage = catImage || HOME_URL + '/logo512.png';
+  const metaImage = catImageURL || HOME_URL + '/logo512.png';
 
-  const metaURL = `https://b095e22b1bf1.ngrok.io/${
+  const metaURL = `${typeof window !== undefined ? HOME_URL : ''}/${
     cat?.id ? `cat/${cat.id}` : ''
   }`;
 
