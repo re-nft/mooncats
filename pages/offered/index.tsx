@@ -82,7 +82,6 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
 
   // Memoized values
   const sortedOffer = useMemo(() => {
-    console.log('SORT TYPE CHANGED to ' + currentSortType);
     return allOffers.sort(sortFn[currentSortType]);
   }, [currentSortType, allOffers]);
 

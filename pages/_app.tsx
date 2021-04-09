@@ -26,9 +26,7 @@ const theme = createMuiTheme({
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { cat, catImageURL } = pageProps;
-  const metaDescription = cat?.id
-    ? `Cat Id - ${cat.id}`
-    : 'reNFTs MoonCat Base';
+  const metaDescription = cat?.id ? `Cat Id - ${cat.id}` : 'reNFT MoonCat Base';
 
   const metaImage = catImageURL || HOME_URL + '/logo512.png';
 
