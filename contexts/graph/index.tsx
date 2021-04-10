@@ -60,9 +60,8 @@ export const GraphProvider: React.FC = ({ children }) => {
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
       owners: { cats?: Cat[] }[];
-    } = await timeItAsync(
-      `Pulled My Moon Cat Nfts`,
-      async () => await request(subgraphURI, query)
+    } = await timeItAsync(`Pulled My Moon Cat Nfts`, async () =>
+      request(subgraphURI, query)
     );
     const [first] = response.owners;
     if (first) {
@@ -80,9 +79,8 @@ export const GraphProvider: React.FC = ({ children }) => {
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
       cats: Cat[];
-    } = await timeItAsync(
-      `Pulled All Moon Cat Nfts`,
-      async () => await request(subgraphURI, query)
+    } = await timeItAsync(`Pulled All Moon Cat Nfts`, async () =>
+      request(subgraphURI, query)
     );
     return response?.cats ?? [];
   };
@@ -93,9 +91,8 @@ export const GraphProvider: React.FC = ({ children }) => {
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
       requestPrices: AdoptionRequest[];
-    } = await timeItAsync(
-      `Pulled All Requests`,
-      async () => await request(subgraphURI, query)
+    } = await timeItAsync(`Pulled All Requests`, async () =>
+      request(subgraphURI, query)
     );
     setAllRequests(response.requestPrices ?? []);
     setDataLoading(true);
@@ -111,9 +108,8 @@ export const GraphProvider: React.FC = ({ children }) => {
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
       offerPrices: AdoptionOffer[];
-    } = await timeItAsync(
-      `Pulled All Offers Cat Nfts`,
-      async () => await request(subgraphURI, query)
+    } = await timeItAsync(`Pulled All Offers Cat Nfts`, async () =>
+      request(subgraphURI, query)
     );
     setAllOffers(response.offerPrices ?? []);
     setDataLoading(true);
@@ -126,9 +122,8 @@ export const GraphProvider: React.FC = ({ children }) => {
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
       cats: Cat[];
-    } = await timeItAsync(
-      `Pulled Cat By id`,
-      async () => await request(subgraphURI, query)
+    } = await timeItAsync(`Pulled Cat By id`, async () =>
+      request(subgraphURI, query)
     );
     return response?.cats[0];
   };

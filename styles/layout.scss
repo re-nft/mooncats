@@ -216,7 +216,7 @@
     margin-bottom: 0;
     width: 100%;
     padding-bottom: 12px;
-    box-shadow: 15px 0px #fff;
+    box-shadow: 15px 0 #fff;
     transform: translate(-50%, 0);
 
     &:before {
@@ -245,11 +245,6 @@
       rgb(104, 87, 159) 100%
     );
   }
-
-  &.footer-content {
-    line-height: 1;
-    padding: 24px 0;
-  }
 }
 
 .content {
@@ -262,7 +257,7 @@
   min-height: 250px;
 
   &__navigation {
-    justify-content: flex-end;
+    justify-content: space-between;
     display: flex;
     flex-direction: row;
     box-sizing: border-box;
@@ -508,7 +503,7 @@
       top: 0;
       left: 0;
       z-index: -1;
-      box-shadow: 10px 10px #000, 0px 10px #000, 10px 0px #000;
+      box-shadow: 10px 10px #000, 0 10px #000, 10px 0 #000;
     }
   }
 
@@ -561,7 +556,7 @@
       top: 0;
       left: 0;
       z-index: -1;
-      box-shadow: 10px 10px #000, 0px 10px #000, 10px 0px #000;
+      box-shadow: 10px 10px #000, 0 10px #000, 10px 0 #000;
     }
   }
 }
@@ -641,7 +636,8 @@
 }
 
 .cat-overview .item {
-  padding: 0px 20px;
+  padding-right: 20px;
+  padding-left: 20px;
   width: 80%;
   margin: 0 auto 24px;
 
