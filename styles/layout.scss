@@ -4,6 +4,16 @@
   height: 100%;
 }
 
+#nprogress .bar {
+  background: #9a65ca !important;
+  height: 5px !important;
+}
+
+#nprogress .spinner-icon {
+  border-top-color: #9a65ca !important;
+  border-left-color: #9a65ca !important;
+}
+
 .app {
   flex-grow: 1;
   position: relative;

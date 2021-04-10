@@ -1,4 +1,6 @@
 import Head from 'next/head';
+import Router from 'next/router';
+import NProgress from 'nprogress'; //nprogress module
 import Layout from '../components/layout';
 import { AppProps } from 'next/dist/next-server/lib/router/router';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
@@ -10,6 +12,7 @@ import { Symfoni } from '../hardhat/SymfoniContext';
 
 import '../styles/reset.scss';
 import '../styles/index.scss';
+import 'nprogress/nprogress.css';
 import { HOME_URL } from '../lib/consts';
 
 const theme = createMuiTheme({
@@ -23,6 +26,16 @@ const theme = createMuiTheme({
     ].join(','),
   },
 });
+
+NProgress.configure({
+  easing: 'ease',
+  speed: 500,
+  showSpinner: false,
+});
+
+Router.events.on('routeChangeStart', () => NProgress.start());
+Router.events.on('routeChangeComplete', () => NProgress.done());
+Router.events.on('routeChangeError', () => NProgress.done());
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   const { cat, catImageURL } = pageProps;
