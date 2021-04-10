@@ -10,6 +10,7 @@ import { queryAllRequests } from '../../contexts/graph/queries';
 import request from 'graphql-request';
 import { ENDPOINT_MOONCAT_PROD } from '../../lib/consts';
 import Head from 'next/head';
+import { GetStaticProps } from 'next';
 
 export const MyCatsRequests: React.FC<{ allRequests: AdoptionRequest[] }> = ({
   allRequests,
@@ -83,7 +84,7 @@ export const MyCatsRequests: React.FC<{ allRequests: AdoptionRequest[] }> = ({
   );
 };
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
   const requestsQuery = queryAllRequests();
   const { requestPrices } = await request(ENDPOINT_MOONCAT_PROD, requestsQuery);
   return {
@@ -91,6 +92,6 @@ export async function getStaticProps() {
       allRequests: requestPrices || [],
     },
   };
-}
+};
 
 export default React.memo(MyCatsRequests);

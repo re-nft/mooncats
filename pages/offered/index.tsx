@@ -19,6 +19,7 @@ import {
   FETCH_ALL_OFFERS_TAKE,
   FETCH_EVERY_OFFERS_TAKE,
 } from '../../lib/consts';
+import { GetStaticProps } from 'next';
 
 enum OffereSortType {
   HIGH_PRICE = 'HIGH_PRICE',
@@ -97,7 +98,7 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
     setAllOffers((prevOffers) => [...prevOffers, ...offers]);
     setIsLoading(false);
     window.scrollTo(0, yOffset);
-  }, [currentSkipCount]);
+  }, [currentSkipCount, fetchAllOffers]);
 
   const handleSort = (sortType: OffereSortType) => setCurrentSortType(sortType);
   const handleModalClose = useCallback(() => setOpenModal(false), []);
@@ -210,7 +211,7 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   );
 };
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
   const offeredQuery = queryAllOffers(FETCH_ALL_OFFERS_TAKE, 0);
   const { offerPrices: allOffers } = await request(
     ENDPOINT_MOONCAT_PROD,
@@ -225,6 +226,6 @@ export async function getStaticProps() {
       ),
     },
   };
-}
+};
 
 export default React.memo(OfferedCats);

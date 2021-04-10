@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { GetStaticProps } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import moment from 'moment';
 import request from 'graphql-request';
 import { memo } from 'react';
@@ -109,7 +109,7 @@ const ShowCatById: React.FC<IndividualCatProps> = ({ cat, catImage }) => {
   );
 };
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async () => {
   const allCatsQuery = queryAllCats(100, 0);
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
   const catIds = (cats as Cat[]).map((cat) => ({
@@ -120,7 +120,7 @@ export async function getStaticPaths() {
     paths: catIds,
     fallback: true,
   };
-}
+};
 
 export const getStaticProps: GetStaticProps<
   IndividualCatProps,

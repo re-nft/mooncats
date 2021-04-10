@@ -18,6 +18,7 @@ import Loader from '../components/ui/loader';
 import Modal from '../components/ui/modal';
 import { calculatePrice } from '../utils';
 import Head from 'next/head';
+import { GetStaticProps } from 'next';
 
 type IndexPageProps = {
   cats: Cat[];
@@ -66,7 +67,7 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
     setShowFilters((s) =>
       s === WrappedFilters.ALL ? WrappedFilters.WRAPPED : WrappedFilters.ALL
     );
-  }, [setShowFilters, showFilters]);
+  }, [setShowFilters]);
 
   const handleModalOpen = useCallback((cat: Cat) => {
     setIsModalOpen(true);
@@ -199,12 +200,12 @@ const Index: React.FC<IndexPageProps> = ({ cats: ssrCats }) => {
   );
 };
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
   const fetchCatsQuery = queryAllCats(FETCH_ALL_CATS_TAKE * 1, 0);
   const { cats } = await request(ENDPOINT_MOONCAT_PROD, fetchCatsQuery);
   return {
     props: { cats },
   };
-}
+};
 
 export default React.memo(Index);

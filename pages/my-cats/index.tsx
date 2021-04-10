@@ -74,7 +74,7 @@ const MyCats: React.FC = () => {
 
   useEffect(() => {
     fetchMyMoonCats();
-  }, []);
+  }, [fetchMyMoonCats]);
 
   useEffect(() => {
     setCats(usersMoonCats);
