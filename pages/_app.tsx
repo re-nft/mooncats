@@ -9,11 +9,12 @@ import { GraphProvider } from '../contexts/graph/index';
 import { MooncatsProvider } from '../contexts/mooncats/index';
 import { TransactionStateProvider } from '../contexts/TransactionState';
 import { Symfoni } from '../hardhat/SymfoniContext';
+import { HOME_URL } from '../lib/consts';
 
 import '../styles/reset.scss';
 import '../styles/index.scss';
 import 'nprogress/nprogress.css';
-import { HOME_URL } from '../lib/consts';
+import 'react-tippy/dist/tippy.css';
 
 const theme = createMuiTheme({
   typography: {

@@ -54,11 +54,7 @@ export const hexToAscii = (str1: string): string => {
 export const calculatePrice = (price: string): number =>
   Number(price) / 1000000 / 1000000 / 1000000;
 
-export function drawCat(
-  catId: string,
-  isSSR: boolean = false,
-  size: number = 10
-): string {
+export function drawCat(catId: string, isSSR = false, size = 10): string {
   const data = mooncatparser(catId);
   const width = size * data.length;
   const height = size * data[1].length;
@@ -84,4 +80,8 @@ export function drawCat(
     }
   }
   return canvas.toDataURL();
+}
+
+export function toFixedWithoutRounding(v: number, d: number): string {
+  return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
 }

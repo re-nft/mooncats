@@ -2,12 +2,14 @@ import React, { useState, useCallback, useMemo } from 'react';
 import NextLink from 'next/link';
 import { ethers } from 'ethers';
 import { Cat, CatInfoData } from '../contexts/graph/types';
+import { Tooltip } from 'react-tippy';
 import {
   WRAPPER,
   hexToAscii,
   calculatePrice,
   drawCat,
   getDateTime,
+  toFixedWithoutRounding,
 } from '../utils';
 import Modal from './ui/modal';
 import moment from 'moment';
@@ -22,13 +24,10 @@ interface CatItemProps {
   children: React.ReactChild;
 }
 
-export const CatListItem = ({
-  title,
-  value,
-}: {
+export const CatListItem: React.FC<{
   title: string | React.ReactChild;
   value: string | React.ReactChild;
-}) => {
+}> = ({ title, value }) => {
   return (
     <div className="nft__meta_row">
       <div className="nft__meta_title">{title}</div>
@@ -164,7 +163,7 @@ const CatItem: React.FC<CatItemProps> = ({ cat, onClick, children }) => {
   const catInfoInd = useMemo(
     () =>
       (catInfo as CatInfoData)['data'].find((cInd) => cInd.catId === cat.id),
-    [catInfo.data, cat.id]
+    [cat.id]
   );
 
   return (
@@ -200,21 +199,33 @@ const CatItem: React.FC<CatItemProps> = ({ cat, onClick, children }) => {
         >
           {activeOffer?.price && (
             <CatListItem
-              title={<b style={{ fontSize: '24px' }}>Best Buy Price</b>}
+              title={<b style={{ fontSize: '24px' }}>Price</b>}
               value={
-                <b style={{ fontSize: '24px' }}>
-                  {calculatePrice(activeOffer.price)}&nbsp;ETH
-                </b>
+                <Tooltip title={`${calculatePrice(activeOffer.price)} ETH`}>
+                  <b style={{ fontSize: '24px' }}>
+                    {toFixedWithoutRounding(
+                      calculatePrice(activeOffer.price),
+                      4
+                    )}
+                    &nbsp;ETH
+                  </b>
+                </Tooltip>
               }
             />
           )}
           {activeRequest?.price && (
             <CatListItem
-              title={<b style={{ fontSize: '24px' }}>Best Buy Price</b>}
+              title={<b style={{ fontSize: '24px' }}>Price</b>}
               value={
-                <b style={{ fontSize: '24px' }}>
-                  {calculatePrice(activeRequest.price)}&nbsp;ETH
-                </b>
+                <Tooltip title={`${calculatePrice(activeRequest.price)} ETH`}>
+                  <b style={{ fontSize: '24px' }}>
+                    {toFixedWithoutRounding(
+                      calculatePrice(activeRequest.price),
+                      4
+                    )}
+                    &nbsp;ETH
+                  </b>
+                </Tooltip>
               }
             />
           )}
