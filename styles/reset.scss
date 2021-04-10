@@ -132,18 +132,16 @@ table {
   border-spacing: 0;
 }
 
-html,
-body {
+html {
   min-height: 100%;
   height: 100%;
-}
-
-body {
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  font-family: 'VT323';
-  font-size: 13px;
+  body {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    font-family: 'VT323';
+    font-size: 13px;
+  }
 }
 
 .active-tab {
