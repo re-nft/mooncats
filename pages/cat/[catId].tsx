@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next';
 import moment from 'moment';
 import request from 'graphql-request';
 import { memo } from 'react';
@@ -109,20 +109,7 @@ const ShowCatById: React.FC<IndividualCatProps> = ({ cat, catImage }) => {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const allCatsQuery = queryAllCats(1000, 0);
-  const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
-  const catIds = (cats as Cat[]).map((cat) => ({
-    params: { catId: cat.id },
-  }));
-
-  return {
-    paths: catIds,
-    fallback: true,
-  };
-};
-
-export const getStaticProps: GetStaticProps<
+export const getServerSideProps: GetServerSideProps<
   IndividualCatProps,
   { catId: string }
 > = async ({ params: { catId } }) => {
