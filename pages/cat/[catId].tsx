@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next';
 import moment from 'moment';
 import request from 'graphql-request';
 import { memo } from 'react';
@@ -109,20 +109,34 @@ const ShowCatById: React.FC<IndividualCatProps> = ({ cat, catImage }) => {
   );
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const allCatsQuery = queryAllCats(1000, 0);
-  const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
-  const catIds = (cats as Cat[]).map((cat) => ({
-    params: { catId: cat.id },
-  }));
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   const allCatsQuery = queryAllCats(1000, 0);
+//   const { cats } = await request(ENDPOINT_MOONCAT_PROD, allCatsQuery);
+//   const catIds = (cats as Cat[]).map((cat) => ({
+//     params: { catId: cat.id },
+//   }));
 
-  return {
-    paths: catIds,
-    fallback: true,
-  };
-};
+//   return {
+//     paths: catIds,
+//     fallback: true,
+//   };
+// };
 
-export const getStaticProps: GetStaticProps<
+// export const getStaticProps: GetStaticProps<
+//   IndividualCatProps,
+//   { catId: string }
+// > = async ({ params: { catId } }) => {
+//   const catByIdQuery = queryCatById(catId);
+//   const { cats } = await request(ENDPOINT_MOONCAT_PROD, catByIdQuery);
+//   const downloadURL = await storage
+//     .ref()
+//     .child(`cats/${catId}.png`)
+//     .getDownloadURL();
+//   const catImage = drawCat(catId, true);
+//   return { props: { cat: cats[0] || {}, catImageURL: downloadURL, catImage } };
+// };
+
+export const getServerSideProps: GetServerSideProps<
   IndividualCatProps,
   { catId: string }
 > = async ({ params: { catId } }) => {
