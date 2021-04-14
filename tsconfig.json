@@ -14,8 +14,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "sourceMap": true
   },
-  "include": ["src"]
+  "include": ["src", "hardhat", "components"],
+  "exclude": ["node_modules"]
 }
