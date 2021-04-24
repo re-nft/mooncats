@@ -100,11 +100,13 @@ export const GraphProvider: React.FC = ({ children }) => {
 
   const fetchAllOffers = async (
     take: number,
-    skip: number
+    skip: number,
+    orderBy: string = null,
+    orderDirection: string = null,
   ): Promise<AdoptionOffer[] | undefined> => {
     setDataLoading(false);
     if (!currentAddress) return;
-    const query = queryAllOffers(take, skip);
+    const query = queryAllOffers(take, skip, orderBy, orderDirection);
     const subgraphURI = ENDPOINT_MOONCAT_PROD;
     const response: {
       offerPrices: AdoptionOffer[];
