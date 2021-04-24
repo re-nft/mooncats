@@ -2,7 +2,7 @@ import request from 'graphql-request';
 import Head from 'next/head';
 import React, { useState, useCallback, useContext, useMemo } from 'react';
 import { ethers } from 'ethers';
-import { calculatePrice, getDateTime } from '../../utils';
+import { calculatePrice } from '../../utils';
 
 import GraphContext from '../../contexts/graph/index';
 import { Cat, AdoptionOffer } from '../../contexts/graph/types';
@@ -16,7 +16,6 @@ import Loader from '../../components/ui/loader';
 import { queryAllOffers } from '../../contexts/graph/queries';
 import {
   ENDPOINT_MOONCAT_PROD,
-  FETCH_ALL_OFFERS_TAKE,
   FETCH_EVERY_OFFERS_TAKE,
 } from '../../lib/consts';
 import { GetStaticProps } from 'next';
@@ -28,6 +27,11 @@ enum OffereSortType {
   OLDEST = 'OLDEST',
 }
 
+enum NavigateType {
+  PREV = 'NAVIGATE_PREV',
+  NEXT = 'NAVIGATE_NEXT',
+}
+
 const sortTypes: Record<OffereSortType, string> = {
   [OffereSortType.HIGH_PRICE]: 'HIGH PRICE',
   [OffereSortType.CHEAPEST]: 'CHEAPEST',
@@ -35,28 +39,16 @@ const sortTypes: Record<OffereSortType, string> = {
   [OffereSortType.OLDEST]: 'OLDEST',
 };
 
-const sortFn: Record<
-  OffereSortType,
-  (offerA: AdoptionOffer, offerB: AdoptionOffer) => number
-> = {
-  [OffereSortType.HIGH_PRICE]: (
-    offerA: AdoptionOffer,
-    offerB: AdoptionOffer
-  ) => {
-    return parseInt(offerB.price, 10) - parseInt(offerA.price, 10);
-  },
-  [OffereSortType.CHEAPEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) => {
-    return parseInt(offerA.price, 10) - parseInt(offerB.price, 10);
-  },
-  [OffereSortType.RECENTLY_LISTED]: (
-    offerA: AdoptionOffer,
-    offerB: AdoptionOffer
-  ) => {
-    return getDateTime(offerB.timestamp) - getDateTime(offerA.timestamp);
-  },
-  [OffereSortType.OLDEST]: (offerA: AdoptionOffer, offerB: AdoptionOffer) =>
-    getDateTime(offerA.timestamp) - getDateTime(offerB.timestamp),
-};
+const getOrderByParam = (sortType: OffereSortType) =>
+  sortType === OffereSortType.CHEAPEST || sortType === OffereSortType.HIGH_PRICE
+    ? 'price'
+    : 'timestamp';
+
+const getOrderDirectionParam = (sortType: OffereSortType) =>
+  sortType === OffereSortType.HIGH_PRICE ||
+  sortType === OffereSortType.RECENTLY_LISTED
+    ? 'desc'
+    : 'asc';
 
 const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   allOffers: ssrOffers,
@@ -67,9 +59,7 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
 
   // State
   const [allOffers, setAllOffers] = useState<AdoptionOffer[]>(ssrOffers);
-  const [currentSkipCount, setCurrentSkipCount] = useState<number>(
-    FETCH_ALL_OFFERS_TAKE
-  );
+  const [currentSkipCount, setCurrentSkipCount] = useState<number>(0);
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isOpenModal, setOpenModal] = useState<boolean>(false);
@@ -80,27 +70,54 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
   const [isCopiedSuccessfully, setIsCopiedSuccessfully] = useState<boolean>(
     false
   );
+  const [disableNext, setDisableNext] = useState<boolean>(false);
 
   // Memoized values
-  const sortedOffer = useMemo(() => {
-    return allOffers.sort(sortFn[currentSortType]);
-  }, [currentSortType, allOffers]);
+  const filteredOffers = useMemo(() => {
+    return disableNext ? allOffers : allOffers.slice(0, allOffers.length - 1);
+  }, [disableNext, allOffers]);
 
   // Callbacks
-  const handleFetchOffers = useCallback(async () => {
-    setIsLoading(true);
-    const yOffset = window.pageYOffset + 100;
-    const offers = await fetchAllOffers(
-      FETCH_EVERY_OFFERS_TAKE,
-      currentSkipCount
-    );
-    setCurrentSkipCount((prevSkip) => prevSkip + FETCH_EVERY_OFFERS_TAKE);
-    setAllOffers((prevOffers) => [...prevOffers, ...offers]);
-    setIsLoading(false);
-    window.scrollTo(0, yOffset);
-  }, [currentSkipCount, fetchAllOffers]);
+  const handleFetchOffers = useCallback(
+    async (navigateType: NavigateType) => {
+      setIsLoading(true);
+      const offers = await fetchAllOffers(
+        FETCH_EVERY_OFFERS_TAKE + 1,
+        currentSkipCount +
+          (navigateType === NavigateType.NEXT ? 1 : -1) *
+            FETCH_EVERY_OFFERS_TAKE,
+        getOrderByParam(currentSortType),
+        getOrderDirectionParam(currentSortType)
+      );
+      setCurrentSkipCount(
+        (prevSkip) =>
+          prevSkip +
+          (navigateType === NavigateType.NEXT ? 1 : -1) *
+            FETCH_EVERY_OFFERS_TAKE
+      );
+      setAllOffers(() => [...offers]);
+      setIsLoading(false);
+      if (offers.length !== FETCH_EVERY_OFFERS_TAKE + 1) setDisableNext(true);
+      else setDisableNext(false);
+    },
+    [currentSkipCount, fetchAllOffers]
+  );
 
-  const handleSort = (sortType: OffereSortType) => setCurrentSortType(sortType);
+  const handleSort = async (sortType: OffereSortType) => {
+    setIsLoading(true);
+    const offers = await fetchAllOffers(
+      FETCH_EVERY_OFFERS_TAKE + 1,
+      0,
+      getOrderByParam(currentSortType),
+      getOrderDirectionParam(currentSortType)
+    );
+
+    setCurrentSkipCount(0);
+    setAllOffers(() => [...offers]);
+    setIsLoading(false);
+    setCurrentSortType(sortType);
+  };
+
   const handleModalClose = useCallback(() => setOpenModal(false), []);
   const handleModalOpen = useCallback((offer: AdoptionOffer) => {
     setError(undefined);
@@ -155,38 +172,51 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
           </div>
         </div>
       </div>
-      <div className="content__row content__items">
-        {sortedOffer.map((offer) => {
-          const catId = offer.id.split('::')[0];
-          return (
-            <CatItem
-              key={offer.id}
-              cat={{
-                isWrapped: false,
-                rescueTimestamp: offer.catRescueTimestamp,
-                id: catId,
-                activeOffer: offer,
-              }}
-              hasRescuerIdx={true}
-              onClick={onCopyToClipboard}
-            >
-              <div className="nft__control">
-                <button
-                  className="nft__button"
-                  onClick={() => handleModalOpen(offer)}
-                >
-                  Buy now
-                </button>
-              </div>
-            </CatItem>
-          );
-        })}
-      </div>
+      {!isLoading && (
+        <div className="content__row content__items">
+          {filteredOffers.map((offer) => {
+            const catId = offer.id.split('::')[0];
+            return (
+              <CatItem
+                key={offer.id}
+                cat={{
+                  isWrapped: false,
+                  rescueTimestamp: offer.catRescueTimestamp,
+                  id: catId,
+                  activeOffer: offer,
+                }}
+                hasRescuerIdx={true}
+                onClick={onCopyToClipboard}
+              >
+                <div className="nft__control">
+                  <button
+                    className="nft__button"
+                    onClick={() => handleModalOpen(offer)}
+                  >
+                    Buy now
+                  </button>
+                </div>
+              </CatItem>
+            );
+          })}
+        </div>
+      )}
       {isCopiedSuccessfully && <CatNotifer />}
       {!isLoading ? (
         <div className="load-more">
-          <button className="nft__button" onClick={handleFetchOffers}>
-            Load more
+          <button
+            disabled={currentSkipCount === 0}
+            className="nft__button"
+            onClick={() => handleFetchOffers(NavigateType.PREV)}
+          >
+            Prev
+          </button>
+          <button
+            disabled={disableNext}
+            className="nft__button"
+            onClick={() => handleFetchOffers(NavigateType.NEXT)}
+          >
+            Next
           </button>
         </div>
       ) : (
@@ -212,7 +242,12 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const offeredQuery = queryAllOffers(FETCH_ALL_OFFERS_TAKE, 0);
+  const offeredQuery = queryAllOffers(
+    FETCH_EVERY_OFFERS_TAKE + 1,
+    0,
+    'timestamp',
+    'desc'
+  );
   const { offerPrices: allOffers } = await request(
     ENDPOINT_MOONCAT_PROD,
     offeredQuery
