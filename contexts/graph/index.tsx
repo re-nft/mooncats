@@ -24,7 +24,9 @@ type GraphContextType = {
   fetchMyMoonCats(): Promise<void>;
   fetchAllOffers(
     take: number,
-    skip: number
+    skip: number,
+    orderBy: string,
+    orderDirection: string
   ): Promise<AdoptionOffer[] | undefined>;
 };
 
@@ -102,7 +104,7 @@ export const GraphProvider: React.FC = ({ children }) => {
     take: number,
     skip: number,
     orderBy: string = null,
-    orderDirection: string = null,
+    orderDirection: string = null
   ): Promise<AdoptionOffer[] | undefined> => {
     setDataLoading(false);
     if (!currentAddress) return;
