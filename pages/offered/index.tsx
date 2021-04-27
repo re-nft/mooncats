@@ -100,7 +100,7 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
       if (offers.length !== FETCH_EVERY_OFFERS_TAKE + 1) setDisableNext(true);
       else setDisableNext(false);
     },
-    [currentSkipCount, fetchAllOffers]
+    [currentSkipCount, fetchAllOffers, currentSortType]
   );
 
   const handleSort = async (sortType: OffereSortType) => {
@@ -108,8 +108,8 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
     const offers = await fetchAllOffers(
       FETCH_EVERY_OFFERS_TAKE + 1,
       0,
-      getOrderByParam(currentSortType),
-      getOrderDirectionParam(currentSortType)
+      getOrderByParam(sortType),
+      getOrderDirectionParam(sortType)
     );
 
     setCurrentSkipCount(0);
