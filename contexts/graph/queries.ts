@@ -131,7 +131,12 @@ export const queryAllRequests = (): string => {
   }`;
 };
 
-export const queryAllOffers = (first: number, skip: number, orderBy: string = null, orderDirection: string = null): string => {
+export const queryAllOffers = (
+  first: number,
+  skip: number,
+  orderBy: string = null,
+  orderDirection: string = null
+): string => {
   return `{
     offerPrices(where: {active_in: [true]}, first: ${first}, skip: ${skip}, orderBy: ${orderBy}, orderDirection: ${orderDirection}) {
       id
