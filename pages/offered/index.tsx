@@ -74,7 +74,13 @@ const OfferedCats: React.FC<{ allOffers: AdoptionOffer[] }> = ({
 
   // Memoized values
   const filteredOffers = useMemo(() => {
-    return disableNext ? allOffers : allOffers.slice(0, allOffers.length - 1);
+    return (disableNext
+      ? allOffers
+      : allOffers.slice(0, allOffers.length - 1)
+    ).filter(
+      (offer: AdoptionOffer) =>
+        offer.to.toLowerCase() == ethers.constants.AddressZero
+    );
   }, [disableNext, allOffers]);
 
   // Callbacks
