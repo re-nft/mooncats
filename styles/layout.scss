@@ -541,6 +541,12 @@
         2px 2px 0 #8349be, 1px 1px 0 #8349be;
     }
 
+    &:disabled {
+      background: gray;
+      box-shadow: 5px 5px 0 gray, 4px 4px 0 gray, 3px 3px 0 gray,
+        2px 2px 0 gray, 1px 1px 0 gray;
+    }
+
     &__active {
       background: #fc9706;
       box-shadow: 5px 5px 0 #f58901, 4px 4px 0 #f58901, 3px 3px 0 #f58901,
